@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SPA System</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  </head>
+  <body>
+    <nav class="topnav">
+      <a href="/customer">Customer</a>
+      <a href="/therapist">Therapist</a>
+      <a href="/cashier">Cashier</a>
+      <a href="/monitor">Monitor</a>
+    </nav>
+    <main>{% block content %}{% endblock %}</main>
+  </body>
+</html>

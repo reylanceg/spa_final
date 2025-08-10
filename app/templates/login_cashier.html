@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Cashier Login</h2>
+<form method="post" action="/login/cashier">
+  <div>
+    <label>Username <input name="username" required /></label>
+  </div>
+  <div>
+    <label>Password <input type="password" name="password" required /></label>
+  </div>
+  <div>
+    <label>Counter <input name="counter_number" /></label>
+  </div>
+  <button type="submit">Login</button>
+  {% if error %}
+  <p style="color: red">{{ error }}</p>
+  {% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Cashier</h2>
+<div class="controls">
+  <label
+    >Name
+    <input
+      id="cashier_name"
+      placeholder="Cashier 1"
+      value="{{ cashier_name or '' }}"
+  /></label>
+  <label
+    >Counter
+    <input
+      id="counter_number"
+      placeholder="1"
+      value="{{ counter_number or '' }}"
+  /></label>
+  <button id="pick_next">Pick Next (FIFO)</button>
+  <a href="/logout/cashier">Logout</a>
+</div>
+<div class="grid">
+  <section>
+    <h3>Waiting Queue</h3>
+    <ul id="cashier_waiting"></ul>
+    <h3>Assigned To You</h3>
+    <ul id="cashier_assigned"></ul>
+  </section>
+  <section>
+    <h3>Payment</h3>
+    <div id="payment_panel"></div>
+  </section>
+</div>
+<script src="/static/js/cashier.js"></script>
+{% endblock %}

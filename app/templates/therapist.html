@@ -1,0 +1,29 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Therapist</h2>
+<div class="controls">
+  <label
+    >Name
+    <input
+      id="therapist_name"
+      placeholder="Therapist 1"
+      value="{{ therapist_name or '' }}"
+  /></label>
+  <label
+    >Room
+    <input id="room_number" placeholder="101" value="{{ room_number or '' }}"
+  /></label>
+  <button id="confirm_next">Confirm Next (FIFO)</button>
+  <a href="/logout/therapist">Logout</a>
+</div>
+<div class="grid">
+  <section>
+    <h3>Waiting Queue</h3>
+    <ul id="waiting_queue"></ul>
+  </section>
+  <section>
+    <h3>Current Transaction</h3>
+    <div id="current_txn"></div>
+  </section>
+</div>
+<script src="/static/js/therapist.js"></script>
+{% endblock %}
