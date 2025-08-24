@@ -11,19 +11,19 @@
   <ul>
     {% for it in tx.items %}
     <li>
-      {{ it.service.name }} - ${{ '%.2f'|format(it.price) }} ({{
+      {{ it.service.name }} - ₱{{ '%.2f'|format(it.price) }} ({{
       it.duration_minutes }}m)
     </li>
     {% endfor %}
   </ul>
-  <div><strong>Total:</strong> ${{ '%.2f'|format(tx.total_amount) }}</div>
+  <div><strong>Total:</strong> ₱{{ '%.2f'|format(tx.total_amount) }}</div>
   {% if tx.payment %}
   <div>
-    <strong>Paid:</strong> ${{ '%.2f'|format(tx.payment.amount_paid) }} ({{
+    <strong>Paid:</strong> ₱{{ '%.2f'|format(tx.payment.amount_paid) }} ({{
     tx.payment.method }})
   </div>
   <div>
-    <strong>Change:</strong> ${{ '%.2f'|format(tx.payment.change_amount) }}
+    <strong>Change:</strong> ₱{{ '%.2f'|format(tx.payment.change_amount) }}
   </div>
   <div><strong>Date:</strong> {{ tx.payment.created_at }}</div>
   {% endif %}

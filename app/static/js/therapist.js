@@ -20,9 +20,62 @@ function renderQueue(list) {
   ul.innerHTML = "";
   list.forEach((t) => {
     const li = document.createElement("li");
-    li.textContent = `${t.code || "—"} total $${t.total_amount.toFixed(2)} (${
+    li.className = "queue-item";
+
+    // Create customer info section
+    const customerInfo = document.createElement("div");
+    customerInfo.className = "customer-info";
+
+    // Transaction code
+    const codeSpan = document.createElement("span");
+    codeSpan.className = "transaction-code";
+    codeSpan.textContent = `Code: ${t.code || "—"}`;
+    customerInfo.appendChild(codeSpan);
+
+    // Customer name (if available)
+    if (t.customer_name) {
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "customer-name";
+      nameSpan.textContent = ` | ${t.customer_name}`;
+      customerInfo.appendChild(nameSpan);
+    }
+
+    // Total amount and duration
+    const totalSpan = document.createElement("span");
+    totalSpan.className = "total-info";
+    totalSpan.textContent = ` | Total: ₱${t.total_amount.toFixed(2)} (${
       t.total_duration_minutes
     }m)`;
+    customerInfo.appendChild(totalSpan);
+
+    li.appendChild(customerInfo);
+
+    // Selected services section
+    if (t.selected_services && t.selected_services.length > 0) {
+      const servicesDiv = document.createElement("div");
+      servicesDiv.className = "selected-services";
+
+      const servicesTitle = document.createElement("div");
+      servicesTitle.className = "services-title";
+      servicesTitle.textContent = "Selected Services:";
+      servicesDiv.appendChild(servicesTitle);
+
+      const servicesList = document.createElement("ul");
+      servicesList.className = "services-list";
+
+      t.selected_services.forEach((service) => {
+        const serviceLi = document.createElement("li");
+        serviceLi.className = "service-item";
+        serviceLi.textContent = `${
+          service.service_name
+        } - ₱${service.price.toFixed(2)} (${service.duration_minutes}m)`;
+        servicesList.appendChild(serviceLi);
+      });
+
+      servicesDiv.appendChild(servicesList);
+      li.appendChild(servicesDiv);
+    }
+
     ul.appendChild(li);
   });
 }
@@ -89,7 +142,7 @@ function renderCurrent(tx) {
   const items = tx.items
     .map(
       (it) =>
-        `<li>${it.service_name} - $${it.price.toFixed(2)} (${
+        `<li>${it.service_name} - ₱${it.price.toFixed(2)} (${
           it.duration_minutes
         }m)
           <button class=\"remove_item\" data-itemid=\"${it.id}\">Remove</button>
@@ -102,7 +155,7 @@ function renderCurrent(tx) {
     tx.status
   }</span></div>
       <div><strong>Room:</strong> ${tx.room_number || ""}</div>
-      <div><strong>Total:</strong> $${tx.total_amount.toFixed(
+      <div><strong>Total:</strong> ₱${tx.total_amount.toFixed(
         2
       )} | <strong>Duration:</strong> ${tx.total_duration_minutes}m</div>
       <div><strong>Timer:</strong> <span id=\"service_timer\">--:--:--</span></div>
@@ -124,7 +177,7 @@ function renderCurrent(tx) {
       list.forEach((s) => {
         const opt = document.createElement("option");
         opt.value = s.id;
-        opt.textContent = `${s.name} - $${s.price}`;
+        opt.textContent = `${s.name} - ₱${s.price}`;
         sel.appendChild(opt);
       });
     });
@@ -135,6 +188,9 @@ function renderCurrent(tx) {
   const addSelect = document.getElementById("add_service_select");
 
   const itemsList = document.getElementById("items_list");
+  // Disable Start button if there are no selected services
+  const hasServices = Array.isArray(tx.items) && tx.items.length > 0;
+  if (startBtn) startBtn.disabled = !hasServices;
   function setRemoveButtonsDisabled(disabled) {
     itemsList
       .querySelectorAll(".remove_item")
@@ -144,6 +200,8 @@ function renderCurrent(tx) {
     if (e.target.classList.contains("remove_item")) {
       const id = parseInt(e.target.getAttribute("data-itemid"));
       socket.emit("therapist_remove_item", { transaction_item_id: id });
+      // Prevent starting while waiting for server update
+      if (startBtn) startBtn.disabled = true;
     }
   });
 

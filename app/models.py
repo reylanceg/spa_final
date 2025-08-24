@@ -1,15 +1,15 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timedelta
 import enum
 import random
 import string
-from typing import Optional
+from typing import Optional, Any
 
 from sqlalchemy import Integer, String, DateTime, Enum, ForeignKey, Float, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .extensions import db
+from .extensions import db, socketio
 
 
 class TransactionStatus(enum.Enum):
@@ -23,15 +23,30 @@ class TransactionStatus(enum.Enum):
     paid = "paid"
 
 
+class Category(db.Model):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(255))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    services: Mapped[list[Service]] = relationship("Service", back_populates="category")
+
+
 class Service(db.Model):
     __tablename__ = "services"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    # name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"), nullable=True)
+    classification: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)  # e.g., "Full Body", "Full Back", "Head & Neck"
     price: Mapped[float] = mapped_column(Float, nullable=False)
     duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    category: Mapped[Optional[Category]] = relationship("Category", back_populates="services")
     items: Mapped[list[TransactionItem]] = relationship("TransactionItem", back_populates="service")
 
 
@@ -94,7 +109,7 @@ class Transaction(db.Model):
     total_amount: Mapped[float] = mapped_column(Float, default=0.0)
     total_duration_minutes: Mapped[int] = mapped_column(Integer, default=0)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)  # Use local time instead of UTC
     selection_confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     therapist_confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     service_start_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
@@ -145,7 +160,7 @@ class Payment(db.Model):
     amount_paid: Mapped[float] = mapped_column(Float, nullable=False)
     change_amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     method: Mapped[str] = mapped_column(String(40), default="cash")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)  # Use local time instead of UTC
 
     transaction: Mapped[Transaction] = relationship("Transaction", back_populates="payment")
     cashier: Mapped[Cashier] = relationship("Cashier", back_populates="payments")

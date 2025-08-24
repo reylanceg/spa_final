@@ -1,0 +1,97 @@
+{% extends 'base.html' %} {% block content%}
+<header class="home-header">
+      <div class="company-logo-container">
+        <img src="/static/img/logo.png" alt="" />
+      </div>
+      <div class="customer-time date" id="time"></div>
+      <div class="customer-day date" id="day"></div>
+      <div class="customer-date date" id="date"></div>
+    </header>
+
+    <div class="bento-grid-container">
+      <div class="column1-container column1">
+        <div class="title">
+          <p>Where Serenity Meets Healing</p>
+        </div>
+      </div>
+      <div class="column2-container column2">
+        <div class="column2-item1 column">
+          <a href="/services1"class="button-container">
+            <span>Book now</span>
+            <img src="/static/img/home_page/arrow.png" alt="" />
+          </a>
+        </div>
+        <div class="column2-item2 column">
+          <div class="column2-item2">
+            <a href="https://www.google.com" class="button-container">
+              <span>About Us</span>
+              <img src="/static/img/home_page/arrow.png" alt="" />
+            </a>
+          </div>
+        </div>
+        <div class="column2-item3 column">
+          <div class="column2-item3">
+            <a class="button-container">
+              <span>Inside Wellness</span>
+              <img src="/static/img/home_page/arrow.png" alt="" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="column3-container column3">
+        <div>
+          <p class="home-description">
+            Step into a world where calm surrounds you. Experience soothing
+            treatments, gentle relaxation, and a touch of serenity with every
+            visit.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Customer page header time/date/day
+      function updateClock() {
+        const now = new Date();
+
+        // Time
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+        let ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12; // Convert to 12-hour format
+
+        // Add leading zero
+        hours = String(hours).padStart(2, "0");
+        minutes = String(minutes).padStart(2, "0");
+        seconds = String(seconds).padStart(2, "0");
+
+        // Day
+        const days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        let day = days[now.getDay()];
+
+        // Date
+        const options = { year: "numeric", month: "long", day: "numeric" };
+        let date = now.toLocaleDateString(undefined, options);
+
+        // Display
+        document.getElementById(
+          "time"
+        ).textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+        document.getElementById("day").textContent = day;
+        document.getElementById("date").textContent = date;
+      }
+
+      // Update every second
+      setInterval(updateClock, 1000);
+      updateClock(); // run once immediately
+    </script>
+{% endblock %}

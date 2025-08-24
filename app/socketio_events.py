@@ -23,15 +23,15 @@ from .models import (
 def _iso(dt: datetime | None) -> str | None:
     if not dt:
         return None
-    # Treat stored timestamps as UTC
+    # Use local time instead of UTC
     try:
-        return dt.isoformat() + "Z"
+        return dt.isoformat()
     except Exception:
         return None
 
 
 def serialize_transaction(tx: Transaction) -> dict[str, Any]:
-    return {
+    data = {
         "id": tx.id,
         "code": tx.code,
         "customer_name": tx.customer_name,
@@ -52,6 +52,15 @@ def serialize_transaction(tx: Transaction) -> dict[str, Any]:
             for it in tx.items
         ],
     }
+    if tx.payment:
+        data["payment"] = {
+            "amount_due": tx.payment.amount_due,
+            "amount_paid": tx.payment.amount_paid,
+            "change_amount": tx.payment.change_amount,
+            "method": tx.payment.method,
+            "created_at": _iso(tx.payment.created_at),
+        }
+    return data
 
 
 # Rooms
@@ -71,7 +80,7 @@ def on_join_room(data):
         join_room(room)
         emit("joined_room", {"room": room})
 
-
+# Dito napupunta yung confirm signal after iclick ni customer yung confirm button
 @socketio.on("customer_confirm_selection")
 def customer_confirm_selection(data):
     customer_name = data.get("customer_name")
@@ -93,15 +102,18 @@ def customer_confirm_selection(data):
                 duration_minutes=service.duration_minutes,
             )
         )
-    tx.selection_confirmed_at = datetime.utcnow()
+    tx.selection_confirmed_at = datetime.now()  # Use local time instead of UTC
     tx.recompute_totals()
+    # Generate a transaction code immediately so both customer and therapist can see it
+    tx.code = Transaction.generate_code()
 
     db.session.commit()
 
     emit("therapist_queue_updated", broadcast=True, to="therapist_queue")
     emit("monitor_updated", broadcast=True, to="monitor")
 
-    emit("customer_selection_received", {"transaction_id": tx.id})
+    # Send initial transaction snapshot back to the customer so UI can show code, items, and total right away
+    emit("customer_selection_received", {"transaction_id": tx.id, "transaction": serialize_transaction(tx)})
 
 
 @socketio.on("therapist_subscribe")
@@ -155,7 +167,7 @@ def therapist_confirm_next(data):
     tx.therapist = therapist
     tx.room_number = room_number
     tx.status = TransactionStatus.therapist_confirmed
-    tx.therapist_confirmed_at = datetime.utcnow()
+    tx.therapist_confirmed_at = datetime.now()  # Use local time instead of UTC
     if not tx.code:
         tx.code = Transaction.generate_code()
 
@@ -181,7 +193,7 @@ def therapist_start_service(data):
         return
 
     tx.status = TransactionStatus.in_service
-    tx.service_start_at = datetime.utcnow()
+    tx.service_start_at = datetime.now()  # Use local time instead of UTC
     db.session.commit()
 
     room = f"txn_{tx.id}"
@@ -251,7 +263,7 @@ def therapist_finish_service(data):
         return
 
     tx.status = TransactionStatus.finished
-    tx.service_finish_at = datetime.utcnow()
+    tx.service_finish_at = datetime.now()  # Use local time instead of UTC
     db.session.commit()
 
     emit("therapist_finish_result", {"ok": True, "transaction": serialize_transaction(tx)})
@@ -285,7 +297,7 @@ def cashier_claim_next(data):
 
     tx.status = TransactionStatus.awaiting_payment
     tx.assigned_cashier = cashier
-    tx.cashier_claimed_at = datetime.utcnow()
+    tx.cashier_claimed_at = datetime.now()  # Use local time instead of UTC
     db.session.commit()
 
     emit("monitor_payment_counter", {"code": tx.code, "cashier": cashier.name, "counter": cashier.counter_number}, to="monitor")
@@ -296,7 +308,8 @@ def cashier_claim_next(data):
 @socketio.on("cashier_pay")
 def cashier_pay(data):
     amount_paid = float(data.get("amount_paid"))
-    method = data.get("method", "cash")
+    # Automatically set method to "cash" - no need to get from data
+    method = "cash"
 
     cashier: Cashier | None = None
     cashier_id = session.get("cashier_id")
@@ -326,11 +339,11 @@ def cashier_pay(data):
         amount_due=amount_due,
         amount_paid=amount_paid,
         change_amount=change,
-        method=method,
+        method=method,  # Always "cash"
     )
     db.session.add(payment)
     tx.status = TransactionStatus.paid
-    tx.paid_at = datetime.utcnow()
+    tx.paid_at = datetime.now()  # Use local time instead of UTC
     db.session.commit()
 
     emit("monitor_updated", broadcast=True, to="monitor")

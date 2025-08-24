@@ -14,13 +14,14 @@ def create_app() -> Flask:
     # load_dotenv()
 
     app = Flask(__name__, static_folder="static", template_folder="templates")
+    app.url_map.strict_slashes = False
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
     mysql_user = os.getenv("MYSQL_USER", "root")
     mysql_password = os.getenv("MYSQL_PASSWORD", "admin")
     mysql_host = os.getenv("MYSQL_HOST", "127.0.0.1")
     mysql_port = os.getenv("MYSQL_PORT", "3306")
-    mysql_db = os.getenv("MYSQL_DB", "v5_spa_db")
+    mysql_db = os.getenv("MYSQL_DB", "v7_spa_db")
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}"

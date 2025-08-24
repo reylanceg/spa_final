@@ -16,12 +16,20 @@ def monitor_snapshot():
         return {
             'id': tx.id,
             'code': tx.code,
+            'customer_name': tx.customer_name,
             'therapist': tx.therapist.name if tx.therapist else None,
             'room_number': tx.room_number,
             'total_amount': tx.total_amount,
             'total_duration_minutes': tx.total_duration_minutes,
             'cashier': tx.assigned_cashier.name if tx.assigned_cashier else None,
             'counter': tx.assigned_cashier.counter_number if tx.assigned_cashier else None,
+            'selected_services': [
+                {
+                    'service_name': item.service.name,
+                    'price': item.price,
+                    'duration_minutes': item.duration_minutes
+                } for item in tx.items
+            ]
         }
 
     payment_assigned = Transaction.query.filter_by(status=TransactionStatus.awaiting_payment).order_by(Transaction.cashier_claimed_at.asc()).all()

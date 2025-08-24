@@ -1,0 +1,76 @@
+{% extends 'base.html' %} {% block content %}
+<header>
+  <div class="logo-container">
+    <img src="/static/img/logo.png" alt="" />
+  </div>
+  <div class="service-link">
+    <a href="/services1">Signature Massage</a>
+  </div>
+  <div class="service-link">
+    <a href="#">Hollistic Recovery</a>
+  </div>
+  <div class="service-link">
+    <a href="#">Supplementary</a>
+  </div>
+</header>
+<div class="customer-services-description-container">
+  <h1>Best Selling Services</h1>
+</div>
+<h2>Customer</h2>
+<h1>This is customer2 page</h1>
+<div class="grid">
+  <section>
+    <h3>Available Services</h3>
+    <ul id="services">
+      {% for s in services %}
+      <li>
+        <button
+          class="add"
+          data-id="{{ s.id }}"
+          data-name="{{ s.name }}"
+          data-price="{{ '%.2f'|format(s.price) }}"
+          data-duration_minutes="{{ s.duration_minutes }}"
+        >
+          Add
+        </button>
+        <span
+          >{{ s.name }} - ₱{{ '%.2f'|format(s.price) }} ({{ s.duration_minutes
+          }}m)</span
+        >
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  <section>
+    <h3>Selected Services</h3>
+    <ul id="cart"></ul>
+    <div class="total">Total: ₱<span id="total">0.00</span></div>
+    <div>
+      <label
+        >Customer Name: <input id="customer_name" placeholder="Optional"
+      /></label>
+    </div>
+    <button id="confirm" disabled>Confirm Selection</button>
+  </section>
+</div>
+<!-- Confirmation Modal -->
+<div id="confirm_modal" class="modal hidden">
+  <div class="modal_backdrop"></div>
+  <div class="modal_content">
+    <div class="modal_header">
+      <h3>Confirmation</h3>
+    </div>
+    <div class="modal_body">
+      <p>Transaction Code: <strong id="modal_txn_code"></strong></p>
+      <h4>Selected Services</h4>
+      <ul id="modal_items"></ul>
+      <div class="total">Total: ₱<span id="modal_total">0.00</span></div>
+    </div>
+    <div class="modal_footer">
+      <button id="print_receipt" class="print-btn">Print Receipt</button>
+      <button id="modal_close">OK</button>
+    </div>
+  </div>
+</div>
+<script src="/static/js/customer.js"></script>
+{% endblock %}
