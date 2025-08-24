@@ -45,6 +45,7 @@ async function loadServices() {
     const res = await fetch("/api/services", { credentials: "same-origin" });
     if (!res.ok) throw new Error("Failed to load services");
     servicesData = await res.json();
+    console.log(servicesData)
   } catch (err) {
     console.error("Error loading services:", err);
     servicesData = [];
@@ -58,45 +59,45 @@ function getCategoryDescription(categoryName) {
   return service ? service.category_description : null;
 }
 
-function getServicesByCategory(categoryName) {
-  return servicesData.filter((svc) => svc.category === categoryName);
-}
+// function getServicesByCategory(categoryName) {
+//   return servicesData.filter((svc) => svc.category === categoryName);
+// }
 
-function getAllCategories() {
-  const categories = [...new Set(servicesData.map((svc) => svc.category))];
-  return categories.map((cat) => ({
-    name: cat,
-    description: getCategoryDescription(cat),
-    serviceCount: getServicesByCategory(cat).length,
-  }));
-}
+// function getAllCategories() {
+//   const categories = [...new Set(servicesData.map((svc) => svc.category))];
+//   return categories.map((cat) => ({
+//     name: cat,
+//     description: getCategoryDescription(cat),
+//     serviceCount: getServicesByCategory(cat).length,
+//   }));
+// }
 
 // Utility functions to work with classification data
-function getServicesByClassification(classification) {
-  return servicesData.filter((svc) => svc.classification === classification);
-}
+// function getServicesByClassification(classification) {
+//   return servicesData.filter((svc) => svc.classification === classification);
+// }
 
-function getAllClassifications() {
-  const classifications = [
-    ...new Set(
-      servicesData
-        .map((svc) => svc.classification)
-        .filter((c) => c && c !== "Not specified")
-    ),
-  ];
-  return classifications.map((cls) => ({
-    name: cls,
-    serviceCount: getServicesByClassification(cls).length,
-    services: getServicesByClassification(cls),
-  }));
-}
+// function getAllClassifications() {
+//   const classifications = [
+//     ...new Set(
+//       servicesData
+//         .map((svc) => svc.classification)
+//         .filter((c) => c && c !== "Not specified")
+//     ),
+//   ];
+//   return classifications.map((cls) => ({
+//     name: cls,
+//     serviceCount: getServicesByClassification(cls).length,
+//     services: getServicesByClassification(cls),
+//   }));
+// }
 
-function getServicesByCategoryAndClassification(categoryName, classification) {
-  return servicesData.filter(
-    (svc) =>
-      svc.category === categoryName && svc.classification === classification
-  );
-}
+// function getServicesByCategoryAndClassification(categoryName, classification) {
+//   return servicesData.filter(
+//     (svc) =>
+//       svc.category === categoryName && svc.classification === classification
+//   );
+// }
 
 // Function to populate service cards with category descriptions
 function populateServiceCards() {
@@ -131,6 +132,7 @@ function renderCart() {
     const li = document.createElement("li");
     li.innerHTML = `
       <div style="display:flex; justify-content: space-between" class="cart-items-container">
+        <button class="remove" data-idx="${idx}">Remove</button>
         <div>
           <span class="cart-category" style="font-weight:bold">${category}</span>
           <div style="font-size:0.95em;">
@@ -157,14 +159,14 @@ function renderCart() {
   saveCartToStorage();
 }
 
-function syncModalSelectionButtons() {
-  if (!servicesModalList) return;
-  servicesModalList.querySelectorAll(".add-from-modal").forEach((b) => {
-    const selected = cart.some((i) => i.id == b.dataset.id);
-    b.classList.toggle("selected", selected);
-    b.textContent = selected ? "Added" : "Add";
-  });
-}
+// function syncModalSelectionButtons() {
+//   if (!servicesModalList) return;
+//   servicesModalList.querySelectorAll(".add-from-modal").forEach((b) => {
+//     const selected = cart.some((i) => i.id == b.dataset.id);
+//     b.classList.toggle("selected", selected);
+//     b.textContent = selected ? "Added" : "Add";
+//   });
+// }
 
 // All confirmation details are shown only in the modal
 
@@ -327,6 +329,7 @@ function openServicesModal(title) {
     // .filter((svc) => !filterTitle || svc.category === filterTitle)
     .filter((svc) => !filterTitle || svc.name === filterTitle)
     .forEach((svc) => {
+      // console.log(svc); // Categories table
       const id = String(svc.id);
       const isSelected = modalSelection.has(id);
 

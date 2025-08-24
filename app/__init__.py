@@ -18,7 +18,7 @@ def create_app() -> Flask:
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
     mysql_user = os.getenv("MYSQL_USER", "root")
-    mysql_password = os.getenv("MYSQL_PASSWORD", "admin")
+    mysql_password = os.getenv("MYSQL_PASSWORD", "")
     mysql_host = os.getenv("MYSQL_HOST", "127.0.0.1")
     mysql_port = os.getenv("MYSQL_PORT", "3306")
     mysql_db = os.getenv("MYSQL_DB", "v7_spa_db")
