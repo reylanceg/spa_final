@@ -4,14 +4,9 @@ let currentTxn = null;
 let finishTimeout = null;
 let intervalId = null;
 
-function formatHMS(totalSeconds) {
+function formatSeconds(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  return `${h.toString().padStart(2, "0")}:${m
-    .toString()
-    .padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  return `${s} seconds`;
 }
 
 function stopTimer() {
@@ -30,13 +25,13 @@ function startTimer(tx) {
   const startMs = tx.service_start_at
     ? Date.parse(tx.service_start_at)
     : Date.now();
-  const totalMs = tx.total_duration_minutes * 60 * 1000;
+  const totalMs = tx.total_duration_minutes * 1000;
 
   function tick() {
     const now = Date.now();
     const elapsed = now - startMs;
     const remaining = Math.max(0, Math.ceil((totalMs - elapsed) / 1000));
-    timerEl.textContent = formatHMS(remaining);
+    timerEl.textContent = formatSeconds(remaining);
     if (remaining <= 0) {
       stopTimer();
       // enable finish button if present
@@ -65,9 +60,7 @@ function renderCurrent(tx) {
   const items = tx.items
     .map(
       (it) =>
-        `<li>${it.service_name} - ₱${it.price.toFixed(2)} (${
-          it.duration_minutes
-        }m)
+        `<li>${it.service_name} - ₱${it.price.toFixed(2)} (${it.duration_minutes}s)
           <button class="remove_item" data-itemid="${it.id}">Remove</button>
         </li>`
     )
@@ -80,8 +73,8 @@ function renderCurrent(tx) {
       <div><strong>Room:</strong> ${tx.room_number || ""}</div>
       <div><strong>Total:</strong> ₱${tx.total_amount.toFixed(
         2
-      )} | <strong>Duration:</strong> ${tx.total_duration_minutes}m</div>
-      <div><strong>Timer:</strong> <span id="service_timer">--:--:--</span></div>
+      )} | <strong>Duration:</strong> ${tx.total_duration_minutes}s</div>
+      <div><strong>Timer:</strong> <span id="service_timer">-- seconds</span></div>
       <ul id="items_list">${items}</ul>
       <div class="controls">
         <button id="btn_start">Start Service</button>
@@ -140,7 +133,7 @@ function renderCurrent(tx) {
 
   startBtn.onclick = () => {
     socket.emit("therapist_start_service", { transaction_id: tx.id });
-    const disableSecs = tx.total_duration_minutes * 1000;
+    const disableSecs = tx.total_duration_minutes;
     startBtn.disabled = true;
     addBtn.disabled = true;
     finishBtn.disabled = true;

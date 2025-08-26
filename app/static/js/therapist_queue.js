@@ -19,7 +19,7 @@ function renderQueue(list) {
                       <div class="service-item">
                         <div class="service-name">${service.service_name.toUpperCase()}</div>
                         <div class="service-details">
-                          <div class="service-duration">${service.duration_minutes} MINUTES</div>
+                          <div class="service-duration">${service.duration_minutes * 60} SECONDS</div>
                           <div class="service-area">${service.classification_name.toUpperCase()}</div>
                         </div>
                       </div>
