@@ -45,7 +45,7 @@ async function loadServices() {
     const res = await fetch("/api/services", { credentials: "same-origin" });
     if (!res.ok) throw new Error("Failed to load services");
     servicesData = await res.json();
-    console.log(servicesData)
+    console.log(servicesData);
   } catch (err) {
     console.error("Error loading services:", err);
     servicesData = [];
@@ -54,9 +54,21 @@ async function loadServices() {
 
 // Utility functions to work with category data
 function getCategoryDescription(categoryName) {
-  // const service = servicesData.find((svc) => svc.category === categoryName);
-  const service = servicesData.find((svc) => svc.services.name === categoryName)
-  return service ? service.category_description : null;
+  const service = servicesData.find((svc) => svc.category === categoryName);
+  return service ? service.description : null;
+}
+
+function getServicesByCategory(categoryName) {
+  return servicesData.filter((svc) => svc.category === categoryName);
+}
+
+function getAllCategories() {
+  const categories = [...new Set(servicesData.map((svc) => svc.category))];
+  return categories.map((cat) => ({
+    name: cat,
+    description: getCategoryDescription(cat),
+    serviceCount: getServicesByCategory(cat).length,
+  }));
 }
 
 // function getServicesByCategory(categoryName) {
@@ -125,7 +137,9 @@ function renderCart() {
     total += parseFloat(item.price);
 
     // Find the full service data to get the category
-    const svc = servicesData.find((s) => String(s.id) === String(item.id));
+    const svc = servicesData.find(
+      (s) => String(s.classification_id) === String(item.classification_id)
+    );
     const category = svc ? svc.category : "Unknown";
 
     // <button class="remove" data-idx="${idx}">Remove</button>
@@ -141,8 +155,8 @@ function renderCart() {
               item.mins
             } Minutes,</span>
             ${
-              item.classification
-                ? `<span class="cart-classification" style="font-size: 0.8em">${item.classification}</span>`
+              item.classification_name
+                ? `<span class="cart-classification" style="font-size: 0.8em">${item.classification_name}</span>`
                 : ""
             }</div>
           </div>
@@ -319,18 +333,44 @@ function openServicesModal(title) {
   servicesModalTitle.textContent = title || "Services";
 
   // Start with items already in the cart highlighted
-  modalSelection = new Set(cart.map((i) => String(i.id)));
+  modalSelection = new Set(cart.map((i) => String(i.classification_id)));
   updateModalConfirmState(); // Add this line
 
   servicesModalList.innerHTML = "";
   const filterTitle = title && title !== "All Services" ? title : null;
+  console.log(filterTitle);
+
+  // Set the service description based on the clicked service card (if element exists)
+  const serviceDescription = document.getElementById("service-description");
+  if (serviceDescription) {
+    if (filterTitle) {
+      console.log("Looking for service:", filterTitle);
+      console.log(
+        "Available services:",
+        servicesData.map((svc) => svc.name)
+      );
+
+      // Find the first service with matching name to get its description
+      const matchingService = servicesData.find(
+        (svc) => svc.name === filterTitle
+      );
+      console.log("Matching service found:", matchingService);
+
+      if (matchingService && matchingService.description) {
+        serviceDescription.textContent = matchingService.description;
+      } else {
+        serviceDescription.textContent = ""; // Clear description if no match or no description
+      }
+    } else {
+      serviceDescription.textContent = "Select a service to view details"; // Default text for "All Services"
+    }
+  }
 
   servicesData
-    // .filter((svc) => !filterTitle || svc.category === filterTitle)
     .filter((svc) => !filterTitle || svc.name === filterTitle)
     .forEach((svc) => {
-      // console.log(svc); // Categories table
-      const id = String(svc.id);
+      // console.log(svc); // Service classifications
+      const id = String(svc.classification_id);
       const isSelected = modalSelection.has(id);
 
       const modalLi = document.createElement("li");
@@ -343,22 +383,25 @@ function openServicesModal(title) {
               ).toLocaleString()}</span>
               
             </div>
+            
             <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;" class="modal-service-name">
               <div style="margin-block:2px;" class="service-classification">${
                 svc.duration_minutes
               } Minutes</div>
             ${
-              svc.classification && svc.classification !== "Not specified"
-                ? `<div class="service-classification" style="font-size: 0.85em;font-style: italic;">${svc.classification}</div>`
+              svc.classification_name &&
+              svc.classification_name !== "Not specified"
+                ? `<div class="service-classification" style="font-size: 0.85em;font-style: italic;">${svc.classification_name}</div>`
                 : ""
             }</div>
           <button class="indicator-btn ${isSelected ? "active" : ""}"
             aria-pressed="${isSelected ? "true" : "false"}"
             data-id="${svc.id}"
+            data-classification-id="${svc.classification_id}"
             data-name="${svc.name}"
             data-price="${svc.price}"
             data-duration_minutes="${svc.duration_minutes}"
-            data-classification="${svc.classification || ""}">
+            data-classification="${svc.classification_name || ""}">
           </button>
         </div>
       `;
@@ -376,6 +419,20 @@ function openServicesModal(title) {
   /* <span class="card-modal-service-name">${svc.name}</span> */
 }
 
+function bindServiceCardEvents() {
+  // Bind service card click events
+  document.querySelectorAll(".services-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const title =
+        card.dataset.title ||
+        (card.querySelector("h3")
+          ? card.querySelector("h3").textContent
+          : "Services");
+      openServicesModal(title);
+    });
+  });
+}
+
 function bindEvents() {
   // Remove old direct-add binding from hidden/removed list
 
@@ -390,10 +447,13 @@ function bindEvents() {
   // Nagttrigger para malaman na nagconfirm na ng services si customer
   document.getElementById("confirm").addEventListener("click", () => {
     // const name = document.getElementById("customer_name").value;
-    const items = cart.map((i) => i.id);
+    const items = cart.map((i) => ({
+      service_id: i.id,
+      service_classification_id: i.classification_id,
+    }));
     customerHasConfirmed = true; // Mark that customer has confirmed
     // socket.emit("customer_confirm_selection", { customer_name: name, items });
-    socket.emit("customer_confirm_selection", { items })
+    socket.emit("customer_confirm_selection", { items });
     localStorage.removeItem("spa_cart"); // <-- Clear cart after confirmation
   });
 
@@ -420,17 +480,8 @@ function bindEvents() {
     });
   }
 
-  // Clickable service cards -> open services list modal
-  document.querySelectorAll(".services-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const title =
-        card.dataset.title ||
-        (card.querySelector("h3")
-          ? card.querySelector("h3").textContent
-          : "Services");
-      openServicesModal(title);
-    });
-  });
+  // Bind service card events immediately
+  bindServiceCardEvents();
 
   // Services modal close & backdrop
   if (servicesModalClose) {
@@ -452,7 +503,7 @@ function bindEvents() {
       const indicator = e.target.closest(".indicator-btn");
       if (!indicator) return;
 
-      const id = String(indicator.dataset.id);
+      const id = String(indicator.dataset.classificationId);
       const isActive = indicator.classList.toggle("active");
       indicator.setAttribute("aria-pressed", isActive ? "true" : "false");
 
@@ -469,18 +520,19 @@ function bindEvents() {
   // Confirm buffered selections => add missing items to cart
   if (servicesModalConfirm) {
     servicesModalConfirm.addEventListener("click", () => {
-      const existingIds = new Set(cart.map((i) => String(i.id)));
+      const existingIds = new Set(cart.map((i) => String(i.classification_id)));
       servicesModalList
         .querySelectorAll(".indicator-btn.active")
         .forEach((b) => {
-          const id = String(b.dataset.id);
-          if (existingIds.has(id)) return;
+          const classificationId = String(b.dataset.classificationId);
+          if (existingIds.has(classificationId)) return;
           cart.push({
-            id,
+            id: b.dataset.id,
+            classification_id: classificationId,
             name: b.dataset.name,
             price: b.dataset.price,
             mins: b.dataset.duration_minutes,
-            classification: b.dataset.classification, // <-- add this
+            classification_name: b.dataset.classification, // <-- add this
           });
         });
       renderCart(); // This will also save to storage
@@ -494,7 +546,7 @@ function updateModalConfirmState() {
 }
 
 // When opening the modal and initializing selection:
-modalSelection = new Set(cart.map((i) => String(i.id)));
+modalSelection = new Set(cart.map((i) => String(i.classification_id)));
 updateModalConfirmState();
 
 socket.on("connected", () => {
@@ -527,23 +579,30 @@ socket.on("customer_txn_update", (tx) => {
   // Modal will only show when customer_selection_received is triggered after customer confirmation
 });
 
-// Initialize
-loadServices().then(() => {
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Bind events immediately when DOM is ready
   bindEvents();
   renderCart();
-  //populateServiceCards(); // Call this function after servicesData is loaded
-});
-
-// test cart
-const cartContainer = document.querySelector(".cart-container");
-const toggle = document.querySelector(".toggle");
-toggle.addEventListener("click", () => {
-  cartContainer.classList.toggle("close");
-});
-
-document.querySelectorAll(".site-link").forEach((link) => {
-  // const site = link.href + "/";
-  if (link.href === window.location.href) {
-    link.setAttribute("aria-current", "page");
+  
+  // Cart toggle functionality
+  const cartContainer = document.querySelector(".cart-container");
+  const toggle = document.querySelector(".toggle");
+  if (toggle && cartContainer) {
+    toggle.addEventListener("click", () => {
+      cartContainer.classList.toggle("close");
+    });
   }
+
+  // Site link highlighting
+  document.querySelectorAll(".site-link").forEach((link) => {
+    if (link.href === window.location.href) {
+      link.setAttribute("aria-current", "page");
+    }
+  });
+  
+  // Load services data
+  loadServices().then(() => {
+    //populateServiceCards(); // Call this function after servicesData is loaded
+  });
 });

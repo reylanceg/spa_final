@@ -6,10 +6,20 @@ import string
 from typing import Optional, Any
 
 from sqlalchemy import Integer, String, DateTime, Enum, ForeignKey, Float, Boolean
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .extensions import db, socketio
+
+# Create Base class for the new models
+Base = db.Model
+
+
+class TransactionCounter(Base):
+    __tablename__ = "transaction_counter"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    next_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
 
 class TransactionStatus(enum.Enum):
@@ -23,31 +33,42 @@ class TransactionStatus(enum.Enum):
     paid = "paid"
 
 
-class Category(db.Model):
-    __tablename__ = "categories"
+class ServiceCategory(Base):
+    __tablename__ = "service_categories"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(String(255))
-    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    category_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
 
-    services: Mapped[list[Service]] = relationship("Service", back_populates="category")
+    services: Mapped[list["Service"]] = relationship(
+        back_populates="category", cascade="all, delete-orphan"
+    )
 
 
-class Service(db.Model):
+class Service(Base):
     __tablename__ = "services"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    # name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
-    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"), nullable=True)
-    classification: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)  # e.g., "Full Body", "Full Back", "Head & Neck"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    category_id: Mapped[int] = mapped_column(ForeignKey("service_categories.id"))
+    service_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str] = mapped_column(String(255))
+
+    category: Mapped["ServiceCategory"] = relationship(back_populates="services")
+    classifications: Mapped[list["ServiceClassification"]] = relationship(
+        back_populates="service", cascade="all, delete-orphan"
+    )
+    items: Mapped[list["TransactionItem"]] = relationship("TransactionItem", back_populates="service")
+
+
+class ServiceClassification(Base):
+    __tablename__ = "service_classifications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    service_id: Mapped[int] = mapped_column(ForeignKey("services.id"))
+    classification_name: Mapped[str] = mapped_column(String(100), nullable=False)
     price: Mapped[float] = mapped_column(Float, nullable=False)
     duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
-    active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    category: Mapped[Optional[Category]] = relationship("Category", back_populates="services")
-    items: Mapped[list[TransactionItem]] = relationship("TransactionItem", back_populates="service")
+    service: Mapped["Service"] = relationship(back_populates="classifications")
 
 
 class Therapist(db.Model):
@@ -92,7 +113,7 @@ class Transaction(db.Model):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[Optional[str]] = mapped_column(String(12), unique=True)
+    code: Mapped[Optional[str]] = mapped_column(String(4), unique=True)
     customer_name: Mapped[Optional[str]] = mapped_column(String(120))
 
     status: Mapped[TransactionStatus] = mapped_column(Enum(TransactionStatus), default=TransactionStatus.selecting, nullable=False)
@@ -121,9 +142,20 @@ class Transaction(db.Model):
     payment: Mapped[Optional[Payment]] = relationship("Payment", back_populates="transaction", uselist=False)
 
     @staticmethod
-    def generate_code(length: int = 8) -> str:
-        alphabet = string.ascii_uppercase + string.digits
-        return "T" + "".join(random.choices(alphabet, k=length))
+    def generate_code() -> str:
+        # Get or create the counter record
+        counter = db.session.query(TransactionCounter).first()
+        if not counter:
+            counter = TransactionCounter(next_number=1)
+            db.session.add(counter)
+            db.session.flush()
+        
+        # Get the current number and increment for next time
+        current_number = counter.next_number
+        counter.next_number += 1
+        
+        # Format as 4-digit padded integer (0001, 0002, etc.)
+        return f"{current_number:04d}"
 
     def recompute_totals(self) -> None:
         total = 0.0
@@ -141,12 +173,14 @@ class TransactionItem(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     transaction_id: Mapped[int] = mapped_column(ForeignKey("transactions.id", ondelete="CASCADE"))
     service_id: Mapped[int] = mapped_column(ForeignKey("services.id"))
+    service_classification_id: Mapped[int] = mapped_column(ForeignKey("service_classifications.id"))
 
     price: Mapped[float] = mapped_column(Float, nullable=False)
-    duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=60)
 
-    transaction: Mapped[Transaction] = relationship("Transaction", back_populates="items")
-    service: Mapped[Service] = relationship("Service", back_populates="items")
+    transaction: Mapped["Transaction"] = relationship("Transaction", back_populates="items")
+    service: Mapped["Service"] = relationship("Service", back_populates="items")
+    service_classification: Mapped["ServiceClassification"] = relationship("ServiceClassification")
 
 
 class Payment(db.Model):

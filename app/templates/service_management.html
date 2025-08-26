@@ -1,0 +1,28 @@
+{% extends 'base.html' %} {% block content %}
+<div class="service-management-container">
+  <h2>Service Management</h2>
+  <div class="controls">
+    <label
+      >Name
+      <input
+        id="therapist_name"
+        placeholder="Therapist 1"
+        value="{{ therapist_name or '' }}"
+        readonly
+    /></label>
+    <label
+      >Room
+      <input id="room_number" placeholder="101" value="{{ room_number or '' }}" readonly
+    /></label>
+    <a href="/therapist" class="btn-back">Back to Queue</a>
+    <a href="/logout/therapist">Logout</a>
+  </div>
+  <div class="grid">
+    <section>
+      <h3>Current Service</h3>
+      <div id="current_txn"></div>
+    </section>
+  </div>
+</div>
+<script src="/static/js/service_management.js"></script>
+{% endblock %}

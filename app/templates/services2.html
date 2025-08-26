@@ -1,10 +1,4 @@
 {% extends 'base.html' %} {% block content %}
-<nav class="topnav">
-      <a href="/customer">Customer</a>
-      <a href="/therapist">Therapist</a>
-      <a href="/cashier">Cashier</a>
-      <a href="/monitor">Monitor</a>
-</nav>
 <header>
   <div class="logo-container">
     <a href="/">
@@ -15,41 +9,43 @@
     <a href="/services1" class="site-link">Signature Massage</a>
   </div>
   <div class="service-link">
-    <a href="/services2" class="site-link">Hollistic Recovery</a>
+    <a href="/services2" class="site-link">Holistic Recovery</a>
   </div>
 </header>
-<div class="customer-services-description-container services2-description-container">
-  <h1>Hollistic Recovery</h1>
-  <p>Explore our tailored treatments-from Myofascial Release for muscle relief, to Cupping Therapy for circulation, to Sports Massage for performance and recovery-designed to support lasting well-being.</p>
+<div
+  class="customer-services-description-container services2-description-container"
+>
+  <h1>Holistic Recovery</h1>
+  <p>
+    Explore our tailored treatments-from Myofascial Release for muscle relief,
+    to Cupping Therapy for circulation, to Sports Massage for performance and
+    recovery-designed to support lasting well-being.
+  </p>
 </div>
 <div class="services-cards-container">
-  <div class="services-card" data-title="ACCUPRESSURE">
+  <div class="services-card" data-title="Myofascial Release">
     <div class="service-image-container">
       <img src="/static/img/services2_page/card1.jpg" alt="" />
     </div>
     <h3>MYOFASCIAL RELEASE</h3>
-    <!-- <p>Our most popular massage experiences.</p> -->
   </div>
-  <div class="services-card" data-title="Holistic Recovery">
+  <div class="services-card" data-title="Cupping Therapy">
     <div class="service-image-container">
       <img src="/static/img/services2_page/card2.jpg" alt="" />
     </div>
     <h3>CUPPING THERAPY</h3>
-    <p>Uses suction cups to relieve muscle soreness, improve circulation, and enhance physical movement.</p>
   </div>
-  <div class="services-card" data-title="Supplementary">
+  <div class="services-card" data-title="Sports Massage">
     <div class="service-image-container">
       <img src="/static/img/services2_page/card3.jpg" alt="" />
     </div>
     <h3>SPORTS MASSAGE</h3>
-    <p>Pre-event massage readies the body for performance, post-event aids recovery, enhancing results and reducing injury risk.</p>
   </div>
-  <div class="services-card" data-title="All Services">
+  <div class="services-card" data-title="Assessment">
     <div class="service-image-container">
       <img src="/static/img/services2_page/card4.jpg" alt="" />
     </div>
     <h3>ASSESSMENT</h3>
-    <p>In-house professional evaluates treatment effectiveness, identifies improvements, and ensures top-quality, personalized care for your needs.</p>
   </div>
 </div>
 
@@ -81,7 +77,9 @@
     /></label>
   </div> -->
 
-  <button id="confirm" class="cart-confirm-btn" disabled>Confirm Selection</button>
+  <button id="confirm" class="cart-confirm-btn" disabled>
+    Confirm Selection
+  </button>
 </section>
 
 <!-- Services List Modal -->
@@ -90,7 +88,8 @@
   <div class="modal_content">
     <div class="modal_header">
       <h3 id="services_modal_title" class="services-title">Services</h3>
-      <h4 style="margin-block: 10px">Select an option:</h4>
+      <div id="service-description"></div>
+      <h4 style="margin-block: 10px; color: #902726">Select an option:</h4>
     </div>
     <div class="modal_body">
       <ul id="services_modal_list"></ul>

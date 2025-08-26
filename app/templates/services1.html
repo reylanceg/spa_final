@@ -1,10 +1,10 @@
 {% extends 'base.html' %} {% block content %}
-<nav class="topnav">
+<!-- <nav class="topnav">
       <a href="/customer">Customer</a>
       <a href="/therapist">Therapist</a>
       <a href="/cashier">Cashier</a>
       <a href="/monitor">Monitor</a>
-</nav>
+</nav> -->
 <header>
   <div class="logo-container">
     <a href="/">
@@ -27,33 +27,29 @@
 </div>
 
 <div class="services-cards-container">
-  <div class="services-card" data-title="Accupressure">
+  <div class="services-card" data-title="Acupressure">
     <div class="service-image-container">
       <img src="/static/img/acupressure.jpg" alt="" />
     </div>
     <h3>ACCUPRESSURE</h3>
-    <p>China's ancient healing that relaxes and restores without oil</p>
   </div>
-  <div class="services-card" data-title="Holistic Recovery">
+  <div class="services-card" data-title="The Shiatsu">
     <div class="service-image-container">
       <img src="/static/img/acupressure2.jpg" alt="" />
     </div>
     <h3>THE SHIATSU</h3>
-    <p>Finger pressure relaxes, boosts circulation, and balances body and mind.</p>
   </div>
-  <div class="services-card" data-title="Supplementary">
+  <div class="services-card" data-title="The Swedish">
     <div class="service-image-container">
       <img src="/static/img/acupressure3.jpg" alt="" />
     </div>
     <h3>THE SWEDISH</h3>
-    <p>Gentle to firm strokes ease tension, circulation, and relaxation</p>
   </div>
-  <div class="services-card" data-title="All Services">
+  <div class="services-card" data-title="Foot Massage">
     <div class="service-image-container">
       <img src="/static/img/acupressure4.jpg" alt="" />
     </div>
     <h3>FOOT MASSAGE</h3>
-    <p>Foot massage eases tension, improves circulation, and refreshes your spirit.</p>
   </div>
 </div>
 
@@ -85,7 +81,9 @@
     /></label>
   </div> -->
 
-  <button id="confirm" class="cart-confirm-btn" disabled>Confirm Selection</button>
+  <button id="confirm" class="cart-confirm-btn" disabled>
+    Confirm Selection
+  </button>
 </section>
 
 <!-- Services List Modal -->
@@ -94,6 +92,7 @@
   <div class="modal_content">
     <div class="modal_header">
       <h3 id="services_modal_title" class="services-title">Services</h3>
+      <div id="service-description"></div>
       <h4 style="margin-block: 10px; color: #902726">Select an option:</h4>
     </div>
     <div class="modal_body">

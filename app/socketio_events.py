@@ -9,6 +9,7 @@ from sqlalchemy import select
 from .extensions import db, socketio
 from .models import (
     Service,
+    ServiceClassification,
     Therapist,
     Cashier,
     Transaction,
@@ -45,7 +46,7 @@ def serialize_transaction(tx: Transaction) -> dict[str, Any]:
             {
                 "id": it.id,
                 "service_id": it.service_id,
-                "service_name": it.service.name,
+                "service_name": it.service.service_name,
                 "price": it.price,
                 "duration_minutes": it.duration_minutes,
             }
@@ -84,22 +85,43 @@ def on_join_room(data):
 @socketio.on("customer_confirm_selection")
 def customer_confirm_selection(data):
     customer_name = data.get("customer_name")
-    items = data.get("items", [])  # list of service_id
+    items = data.get("items", [])  # list of service items with classification info
 
     tx = Transaction(customer_name=customer_name, status=TransactionStatus.pending_therapist)
     db.session.add(tx)
     db.session.flush()
 
-    for service_id in items:
+    for item in items:
+        # Handle both old format (just service_id) and new format (with classification)
+        if isinstance(item, dict):
+            service_id = item.get("service_id")
+            service_classification_id = item.get("service_classification_id")
+        else:
+            # Backward compatibility: treat as service_id
+            service_id = item
+            service_classification_id = None
+
         service = db.session.get(Service, int(service_id))
         if not service:
             continue
+
+        # Get price and duration from classification if available, otherwise use default
+        price = 0.0
+        duration_minutes = 60  # Default duration
+
+        if service_classification_id:
+            classification = db.session.get(ServiceClassification, int(service_classification_id))
+            if classification:
+                price = classification.price
+                duration_minutes = classification.duration_minutes
+        
         db.session.add(
             TransactionItem(
                 transaction_id=tx.id,
                 service_id=service.id,
-                price=service.price,
-                duration_minutes=service.duration_minutes,
+                service_classification_id=service_classification_id,
+                price=price,
+                duration_minutes=duration_minutes,
             )
         )
     tx.selection_confirmed_at = datetime.now()  # Use local time instead of UTC
@@ -206,6 +228,7 @@ def therapist_start_service(data):
 def therapist_add_service(data):
     tx_id = int(data.get("transaction_id"))
     service_id = int(data.get("service_id"))
+    service_classification_id = data.get("service_classification_id")
 
     tx = db.session.get(Transaction, tx_id)
     service = db.session.get(Service, service_id)
@@ -213,12 +236,31 @@ def therapist_add_service(data):
         emit("error", {"error": "Invalid transaction or service"})
         return
 
+    # Get price and duration from classification if provided, otherwise use first available classification
+    price = 0.0
+    duration_minutes = 60  # Default duration
+    classification_id = None
+
+    if service_classification_id:
+        classification = db.session.get(ServiceClassification, int(service_classification_id))
+        if classification:
+            price = classification.price
+            duration_minutes = classification.duration_minutes
+            classification_id = classification.id
+    elif service.classifications:
+        # Use first available classification if none specified
+        classification = service.classifications[0]
+        price = classification.price
+        duration_minutes = classification.duration_minutes
+        classification_id = classification.id
+
     db.session.add(
         TransactionItem(
             transaction_id=tx.id,
             service_id=service.id,
-            price=service.price,
-            duration_minutes=service.duration_minutes,
+            service_classification_id=classification_id,
+            price=price,
+            duration_minutes=duration_minutes,
         )
     )
     tx.recompute_totals()
@@ -252,6 +294,30 @@ def therapist_remove_item(data):
     emit("customer_txn_update", serialize_transaction(tx), to=room)
     emit("monitor_updated", broadcast=True, to="monitor")
     emit("therapist_edit_done", {"ok": True, "transaction": serialize_transaction(tx)})
+
+
+@socketio.on("therapist_get_current_transaction")
+def therapist_get_current_transaction():
+    therapist_id = session.get("therapist_id")
+    if not therapist_id:
+        emit("therapist_current_transaction", None)
+        return
+    
+    therapist = db.session.get(Therapist, therapist_id)
+    if not therapist:
+        emit("therapist_current_transaction", None)
+        return
+    
+    # Find current transaction for this therapist
+    tx = Transaction.query.filter(
+        Transaction.therapist_id == therapist.id,
+        Transaction.status.in_([TransactionStatus.therapist_confirmed, TransactionStatus.in_service])
+    ).first()
+    
+    if tx:
+        emit("therapist_current_transaction", serialize_transaction(tx))
+    else:
+        emit("therapist_current_transaction", None)
 
 
 @socketio.on("therapist_finish_service")

@@ -4,7 +4,7 @@ from ..models import Cashier
 cashier_bp = Blueprint("cashier", __name__)
 
 
-@cashier_bp.get("/cashier/")
+@cashier_bp.get("/cashier")
 def cashier_page():
     cashier_name = None
     counter_number = None

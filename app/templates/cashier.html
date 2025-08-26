@@ -1,20 +1,26 @@
 {% extends 'base.html' %} {% block content %}
 <h2>Cashier</h2>
 <div class="controls">
-  <label
+  <div id="cashier_name">
+    <p>{{cashier_name}}</p>
+  </div>
+  <div id="counter_number">
+    <p>{{counter_number}}</p>
+  </div>
+  <!-- <label
     >Name
     <input
       id="cashier_name"
       placeholder="Cashier 1"
       value="{{ cashier_name or '' }}"
-  /></label>
-  <label
+  /></label> -->
+  <!-- <label
     >Counter
     <input
       id="counter_number"
       placeholder="1"
       value="{{ counter_number or '' }}"
-  /></label>
+  /></label> -->
   <button id="pick_next">Pick Next (FIFO)</button>
   <a href="/logout/cashier">Logout</a>
 </div>

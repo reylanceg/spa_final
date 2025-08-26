@@ -8,6 +8,142 @@ header {
   align-items: center;
 }
 
+/* Service Management Page Styles */
+.btn-back {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #0056b3;
+  color: white;
+  text-decoration: none;
+}
+
+.service-management-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.service-management-container .card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  background-color: #f9f9f9;
+}
+
+.service-management-container .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #28a745;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-left: 10px;
+}
+
+.service-management-container .controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.service-management-container .controls button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.service-management-container .controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.service-management-container #btn_start {
+  background-color: #28a745;
+  color: white;
+}
+
+.service-management-container #btn_start:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.service-management-container #btn_add {
+  background-color: #007bff;
+  color: white;
+}
+
+.service-management-container #btn_add:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.service-management-container #btn_finish {
+  background-color: #dc3545;
+  color: white;
+}
+
+.service-management-container #btn_finish:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.service-management-container #add_service_select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.service-management-container #items_list {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.service-management-container #items_list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  background-color: white;
+}
+
+.service-management-container .remove_item {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.service-management-container .remove_item:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.service-management-container #service_timer {
+  font-family: "Courier New", monospace;
+  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+}
+
 .service-link a {
   text-decoration: none;
   color: #bcbb89;
@@ -137,14 +273,15 @@ body {
   color: #fff;
   text-decoration: none;
 }
-main {
+/* main {
   height: 100vh;
-}
-.grid {
+  width: 100%;
+} */
+/* .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-}
+} */
 .monitor-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -227,7 +364,6 @@ li {
 
 .services-list {
   margin: 0;
-  padding-left: 16px;
 }
 
 .service-item {
@@ -519,6 +655,10 @@ li {
   font-size: 0.6em;
 }
 
+#service-description {
+  color: #902726;
+  font-size: 14px;
+}
 
 /* Homepage start */
 
@@ -614,19 +754,22 @@ body {
 }
 
 .column2-item1 {
-  background: url(/static/img/home_page/book_background.jpg) no-repeat center/ cover;
+  background: url(/static/img/home_page/book_background.jpg) no-repeat center/
+    cover;
   background-color: red;
   border-radius: 12px;
 }
 
 .column2-item2 {
-  background: url(/static/img/home_page/about_background.jpg) no-repeat center/ cover;
+  background: url(/static/img/home_page/about_background.jpg) no-repeat center/
+    cover;
   background-color: rgb(225, 0, 255);
   border-radius: 12px;
 }
 
 .column2-item3 {
-  background: url(/static/img/home_page/inside_welness_background.jpg) no-repeat center/ cover;
+  background: url(/static/img/home_page/inside_welness_background.jpg) no-repeat
+    center/ cover;
   background-color: rgb(0, 251, 255);
   border-radius: 12px;
 }
@@ -689,3 +832,375 @@ body {
 }
 
 /* Homepage end */
+
+/* About_page start */
+
+/* .about-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  
+} */
+
+.our-story-container {
+  height: 80vh;
+  width: 100%;
+  margin: auto;
+  height: 200vh;
+  background: linear-gradient(rgba(70, 40, 40, 0.5), rgba(73, 51, 40, 0.5)),
+    url("/static/img/about_page_background.jpg") no-repeat center/cover;
+  background-attachment: fixed;
+  color: #fff;
+}
+
+.about-details-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.our-story-container .about-details {
+  width: 80%;
+  margin: auto;
+}
+
+.about-details p {
+  margin-block: 20px;
+  font-size: 18px;
+}
+
+.our-story-container .about-details h1 {
+  font-size: 80px;
+  font-style: italic;
+  margin-bottom: 30px;
+}
+
+.about-video-container {
+  width: 80%;
+  margin: auto;
+}
+
+.mission-vision-container {
+  margin: auto;
+  display: grid;
+  width: 80%;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 20px;
+}
+
+.mission-details-container {
+  line-height: 1.3em;
+}
+.mission-details-container h1 {
+  font-size: 5vw;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+.mission-details-container p {
+  margin-block: 10px;
+}
+
+.mission-background {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mission-background img {
+  width: 400px;
+  height: 210px;
+}
+
+.vision-background img {
+  width: 420px;
+  height: 210px;
+}
+
+.vision-details-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* About_page end */
+
+/* Therapist login page start*/
+
+.therapist-login-page-container,
+.cashier-login-page-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
+    url(/static/img/about_page_background.jpg) no-repeat center/cover;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #fff4f4;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 500px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.login-container h2,
+.login-container p {
+  margin-bottom: 5px;
+  font-size: 18px;
+  color: #333;
+}
+
+.login-container p {
+  margin-bottom: 30px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  background: #fff;
+  border: 2px solid #902726;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.input-label {
+  background: #902726;
+  color: #fff4f4;
+  font-size: 13px;
+  padding: 8px 15px;
+  white-space: nowrap;
+}
+
+.room-label {
+  padding-right: 40px;
+}
+
+.input-group input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #fff4f4;
+}
+
+.login-btn {
+  width: 60%;
+  background: #902726;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.input-group .toggle-password {
+  cursor: pointer;
+  padding: 0 10px;
+  color: #902726;
+}
+
+/* Therapist login page end */
+
+/* Therapist page start */
+
+.therapist-page-container {
+  height: 100%;
+  background: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
+    url(/static/img/about_page_background.jpg) no-repeat center/cover;
+}
+
+.therapist-pending-services-container {
+  width: 80%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.therapist-pending-services {
+  width: 500px;
+  background-color: #fff4f4;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.therapist-pending-services-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pending-service-header-code {
+  margin-right: 5px;
+}
+
+.therapist-room-number {
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 18px;
+}
+
+.controls-container {
+  width: 30%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.therapist-confirm-button {
+  padding: 10px;
+  border-radius: 18px;
+  color: white;
+  background-color: #902726;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.therapist-service-name,
+.therapist-transaction-code {
+  font-size: 22px;
+  color: #902726;
+  font-weight: bold;
+}
+
+.queue-item li:last-child() {
+  border-bottom: none;
+}
+
+.queue-item-container {
+  display: flex;
+}
+
+/* Therapist Queue Card Styles */
+.queue-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-card {
+  background: #f8f5f0;
+  /* border: 1px solid #d4c4a8; */
+  /* border-radius: 12px; */
+  border-bottom: 10px solid #902726;
+  padding: 16px;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+  /* transition: transform 0.2s ease, box-shadow 0.2s ease; */
+}
+
+.queue-item .queue-card-container .service-card {
+  border-bottom: 2px solid #902726;
+}
+
+.queue-item:last-child .queue-card-container .service-card {
+  border-bottom: none;
+}
+
+/* .service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+} */
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.service-title {
+  flex: 1;
+}
+
+.service-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #902726;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-duration,
+.service-area {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.service-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 60px;
+}
+
+.code-label {
+  font-size: 10px;
+  color: #902726;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.code-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #902726;
+  line-height: 1;
+}
+
+/* Override existing queue item styles for new card layout */
+.queue-item {
+  border: none;
+  padding: 0;
+  margin-bottom: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.service-card:last-child {
+  border-bottom: none;
+}
+
+/* Therapist page end */
+
+/* Cashier page start */
+
+/* Casheir page end */

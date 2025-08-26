@@ -1,29 +1,42 @@
 {% extends 'base.html' %} {% block content %}
-<h2>Therapist</h2>
-<div class="controls">
-  <label
+<div class="therapist-page-container">
+  <div class="controls">
+    <!-- <label
     >Name
     <input
       id="therapist_name"
       placeholder="Therapist 1"
       value="{{ therapist_name or '' }}"
-  /></label>
-  <label
+  /></label> -->
+    <!-- <div id="therapist_name">
+      <p>{{therapist_name}}</p>
+    </div> -->
+    <!-- <label
     >Room
     <input id="room_number" placeholder="101" value="{{ room_number or '' }}"
-  /></label>
-  <button id="confirm_next">Confirm Next (FIFO)</button>
-  <a href="/logout/therapist">Logout</a>
+  /></label> -->
+    <div class="controls-container">
+      <div id="therapist_name">
+        <p>{{therapist_name}}</p>
+      </div>
+      <div id="room_number" class="therapist-room-number">
+        Room {{room_number}}
+      </div>
+      <button id="confirm_next" class="therapist-confirm-button">
+        Confirm FIFO
+      </button>
+    </div>
+    <a href="/logout/therapist">Logout</a>
+  </div>
+  <div class="therapist-pending-services-container">
+    <section class="therapist-pending-services">
+      <div class="therapist-pending-services-header">
+        <h3>Waiting Queue</h3>
+        <h3 class="pending-service-header-code">Code</h3>
+      </div>
+      <ul id="waiting_queue"></ul>
+    </section>
+  </div>
 </div>
-<div class="grid">
-  <section>
-    <h3>Waiting Queue</h3>
-    <ul id="waiting_queue"></ul>
-  </section>
-  <section>
-    <h3>Current Transaction</h3>
-    <div id="current_txn"></div>
-  </section>
-</div>
-<script src="/static/js/therapist.js"></script>
+<script src="/static/js/therapist_queue.js"></script>
 {% endblock %}

@@ -25,9 +25,10 @@ def monitor_snapshot():
             'counter': tx.assigned_cashier.counter_number if tx.assigned_cashier else None,
             'selected_services': [
                 {
-                    'service_name': item.service.name,
+                    'service_name': item.service.service_name,
                     'price': item.price,
-                    'duration_minutes': item.duration_minutes
+                    'duration_minutes': item.duration_minutes,
+                    'classification_name': item.service_classification.classification_name
                 } for item in tx.items
             ]
         }
