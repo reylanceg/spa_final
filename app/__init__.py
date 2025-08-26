@@ -21,7 +21,7 @@ def create_app() -> Flask:
     mysql_password = os.getenv("MYSQL_PASSWORD", "")
     mysql_host = os.getenv("MYSQL_HOST", "127.0.0.1")
     mysql_port = os.getenv("MYSQL_PORT", "3306")
-    mysql_db = os.getenv("MYSQL_DB", "windsurf_spa")
+    mysql_db = os.getenv("MYSQL_DB", "spa_db")
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}"
