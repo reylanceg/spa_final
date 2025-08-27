@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/static/fonts/PlayfairDisplay-Italic");
+  font-weight: 400;
+  font-style: italic;
+}
+
 /* Customer Header */
 
 header {
@@ -147,7 +154,8 @@ header {
 .service-link a {
   text-decoration: none;
   color: #bcbb89;
-  font-size: 20px;
+  font-size: 24px;
+  font-family: "Playfair Display";
 }
 
 .site-link[aria-current="page"] {
@@ -171,9 +179,10 @@ header {
 }
 
 .customer-services-description-container > h1 {
-  font-size: 50px;
+  font-size: 65px;
   font-style: italic;
   margin-left: 20px;
+  font-family: "Playfair Display";
 }
 
 .customer-services-description-container p {
@@ -236,6 +245,8 @@ header {
   text-align: center;
   margin-block: 8px;
   color: #bcb18c;
+  font-family: "Playfair Display";
+  font-size: 18px;
 }
 
 .services-card p {
@@ -874,6 +885,12 @@ body {
   font-size: 80px;
   font-style: italic;
   margin-bottom: 30px;
+  font-family: "Playfair Display";
+}
+
+.mission-details-container h1 {
+  font-family: "Playfair Display";
+  font-size: 12px;
 }
 
 .about-video-container {
@@ -894,7 +911,7 @@ body {
   line-height: 1.3em;
 }
 .mission-details-container h1 {
-  font-size: 5vw;
+  font-size: 70px;
   margin-bottom: 30px;
   font-style: italic;
 }
@@ -924,6 +941,12 @@ body {
   justify-content: center;
   flex-direction: column;
   align-items: center;
+}
+
+.vision-details-container h1 {
+  font-family: "Playfair Display";
+  font-size: 70px;
+  font-style: italic;
 }
 
 /* About_page end */
@@ -1059,8 +1082,9 @@ body {
 
 .therapist-room-number {
   padding: 10px;
-  background-color: #fff;
+  background-color: #902726;
   border-radius: 18px;
+  color: #fff;
 }
 
 .controls-container {

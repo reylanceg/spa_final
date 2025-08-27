@@ -11,10 +11,12 @@
   </head>
   <body>
     {% if request.path in ['/login/therapist', '/login/cashier', '/therapist',
-    '/cashier', '/', '/about']%}
+    '/cashier', '/', '/about', '/therapist/service-management']%}
     <header class="home-header">
       <div class="company-logo-container">
-        <img src="/static/img/logo.png" alt="" />
+        <a href="/">
+          <img src="/static/img/logo.png" alt="" />
+        </a>
       </div>
       <div class="customer-time date" id="time"></div>
       <div class="customer-day date" id="day"></div>
