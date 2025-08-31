@@ -1140,12 +1140,12 @@ body {
 .our-story-container {
   height: 80vh;
   width: 100%;
-  margin: auto;
-  height: 200vh;
+  height: 100%;
   background: linear-gradient(rgba(70, 40, 40, 0.5), rgba(73, 51, 40, 0.5)),
     url("/static/img/about_page_background.jpg") no-repeat center/cover;
   background-attachment: fixed;
   color: #fff;
+  padding: 30px;
 }
 
 .about-details-container {
@@ -1162,14 +1162,365 @@ body {
 
 .about-details p {
   margin-block: 20px;
-  font-size: 18px;
+  font-size: clamp(14px, 2.5vw, 18px);
+  line-height: 1.6;
 }
 
 .our-story-container .about-details h1 {
-  font-size: 80px;
+  font-size: clamp(32px, 8vw, 80px);
   font-style: italic;
   margin-bottom: 30px;
   font-family: "Playfair Display";
+}
+
+.cedar-video {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-block: 30px;
+}
+
+.cedar-video video {
+  width: 100%;
+  height: auto;
+}
+
+/* Video overlay controls */
+.video-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 80%;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.play-pause-button {
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.play-pause-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.play-pause-button svg {
+  width: 32px;
+  height: 32px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.video-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Video controls bar */
+.video-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 1px;
+  right: 1px;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  backdrop-filter: blur(5px);
+}
+
+.video-wrapper:hover .video-controls,
+.video-controls.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.control-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.time-display {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.time-separator {
+  margin: 0 2px;
+  opacity: 0.7;
+}
+
+.seek-container {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.seek-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.seek-bar::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.seek-bar::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.seek-bar::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.volume-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volume-bar {
+  width: 60px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.volume-bar::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid #fff;
+}
+
+.volume-bar::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 1px solid #fff;
+}
+
+/* About Page Responsive Design */
+
+/* About Page Responsive Design */
+
+/* Tablet and larger screens adjustments */
+@media screen and (max-width: 1024px) {
+  .our-story-container {
+    padding: clamp(10px, 3vw, 30px);
+  }
+
+  .mission-vision-container {
+    width: 90%;
+    gap: 15px;
+  }
+
+  .mission-background img,
+  .vision-background img {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+  }
+
+  .video-wrapper {
+    width: 90%;
+  }
+}
+
+/* Mobile layout changes */
+@media screen and (max-width: 768px) {
+  .our-story-container {
+    height: auto;
+    min-height: 80vh;
+  }
+
+  .about-details-container {
+    height: auto;
+    min-height: 70vh;
+    padding: 20px 0;
+  }
+
+  .our-story-container .about-details {
+    width: 95%;
+  }
+
+  .mission-vision-container {
+    width: 95%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 20px;
+    margin-block: 30px;
+  }
+
+  .vision-details-container h1 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .mission-details-container,
+  .vision-details-container {
+    text-align: center;
+  }
+
+  .mission-vision-container .mission-details-container h1 {
+    margin-bottom: 20px;
+  }
+
+  .mission-background,
+  .vision-background {
+    order: 2;
+  }
+
+  .mission-background img,
+  .vision-background img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+
+  .video-wrapper {
+    width: 100%;
+  }
+
+  .controls-row {
+    gap: 8px;
+  }
+
+  .time-display {
+    font-size: clamp(10px, 2vw, 14px);
+    min-width: 70px;
+  }
+
+  .volume-container {
+    gap: 6px;
+  }
+
+  .volume-bar {
+    width: 50px;
+  }
+}
+
+/* Small mobile optimizations */
+@media screen and (max-width: 480px) {
+  .cedar-video-header-container p {
+    font-size: clamp(18px, 4vw, 24px);
+    margin: 5px 0;
+  }
+
+  .play-pause-button {
+    width: clamp(50px, 12vw, 80px);
+    height: clamp(50px, 12vw, 80px);
+  }
+
+  .play-pause-button svg {
+    width: clamp(20px, 5vw, 32px);
+    height: clamp(20px, 5vw, 32px);
+  }
+
+  .controls-row {
+    gap: 6px;
+    padding: 0 5px;
+  }
+
+  .control-button {
+    padding: 6px;
+  }
+
+  .control-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .volume-bar {
+    width: 40px;
+  }
+
+  .seek-container {
+    margin: 0 5px;
+  }
 }
 
 .mission-details-container h1 {
@@ -1195,13 +1546,16 @@ body {
   line-height: 1.3em;
 }
 .mission-details-container h1 {
-  font-size: 70px;
-  margin-bottom: 30px;
+  font-size: clamp(28px, 6vw, 70px);
+  margin-bottom: 45px;
   font-style: italic;
 }
 
-.mission-details-container p {
+.mission-details-container p,
+.vision-details-container p {
   margin-block: 10px;
+  font-size: clamp(14px, 2vw, 16px);
+  line-height: 1.5;
 }
 
 .mission-background {
@@ -1229,8 +1583,177 @@ body {
 
 .vision-details-container h1 {
   font-family: "Playfair Display";
-  font-size: 70px;
+  font-size: clamp(28px, 6vw, 70px);
   font-style: italic;
+}
+
+.cedar-video-header-container p {
+  font-size: clamp(24px, 6vw, 70px);
+  margin: 10px 0;
+  text-align: center;
+}
+
+.cedar-video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size: clamp(28px, 7vw, 80px);
+  font-family: "Playfair Display";
+  font-weight: bold;
+  margin-bottom: 50px;
+}
+
+/* Responsive Design - Mobile First */
+@media (max-width: 768px) {
+  .our-story-container {
+    padding: 20px;
+  }
+  
+  .about-details-container {
+    width: 95%;
+    margin-bottom: 30px;
+  }
+  
+  .about-details h1 {
+    font-size: clamp(24px, 8vw, 48px);
+    margin-bottom: 20px;
+  }
+  
+  .about-details p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+  
+  .cedar-video-container {
+    margin-bottom: 30px;
+    font-size: clamp(20px, 6vw, 40px);
+  }
+  
+  .cedar-video-header-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .video-wrapper {
+    width: 95%;
+  }
+  
+  .video-controls {
+    padding: 8px 15px;
+    bottom: 15px;
+  }
+  
+  .controls-row {
+    gap: 8px;
+  }
+  
+  .time-display {
+    font-size: 12px;
+  }
+  
+  .seek-container {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .volume-container {
+    display: none;
+  }
+  
+  .mission-vision-container {
+    width: 95%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .mission-details-container,
+  .vision-details-container {
+    order: 1;
+    text-align: center;
+  }
+  
+  .mission-background {
+    order: 2;
+  }
+  
+  .vision-details-container {
+    order: 3;
+  }
+  
+  .vision-background {
+    order: 4;
+  }
+  
+  .mission-details-container h1,
+  .vision-details-container h1 {
+    font-size: clamp(24px, 7vw, 48px);
+    margin-bottom: 20px;
+  }
+  
+  .mission-details-container p,
+  .vision-details-container p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  .mission-background img,
+  .vision-background img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+}
+
+/* Tablet Design */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .our-story-container {
+    padding: 30px;
+  }
+  
+  .about-details-container {
+    width: 90%;
+  }
+  
+  .cedar-video-container {
+    font-size: clamp(24px, 6vw, 60px);
+  }
+  
+  .video-wrapper {
+    width: 85%;
+  }
+  
+  .mission-vision-container {
+    width: 90%;
+    gap: 25px;
+  }
+  
+  .mission-details-container h1,
+  .vision-details-container h1 {
+    font-size: clamp(28px, 6vw, 60px);
+  }
+}
+
+/* Large Desktop Design */
+@media (min-width: 1200px) {
+  .our-story-container {
+    /* max-width: 1200px; */
+    /* margin: 0 auto; */
+    padding: 40px;
+  }
+  
+  /* .about-details-container {
+    width: 75%;
+  } */
+  
+  .mission-vision-container {
+    width: 75%;
+    max-width: 1000px;
+  }
 }
 
 /* About_page end */
