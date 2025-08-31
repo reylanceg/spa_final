@@ -1,21 +1,21 @@
 // Get auth token from sessionStorage
-const authToken = sessionStorage.getItem('therapist_auth_token');
+const authToken = sessionStorage.getItem("therapist_auth_token");
 
 // Initialize socket.io with auth token
 const socket = io({
   auth: {
-    token: authToken
+    token: authToken,
   },
   query: {
-    auth_token: authToken
-  }
+    auth_token: authToken,
+  },
 });
 
 // Add token to fetch requests
 function fetchWithAuth(url, options = {}) {
   const headers = {
     ...options.headers,
-    'X-Auth-Token': authToken
+    "X-Auth-Token": authToken,
   };
   return fetch(url, { ...options, headers });
 }
@@ -29,7 +29,9 @@ function formatSeconds(totalSeconds) {
   const hours = Math.floor(s / 3600);
   const minutes = Math.floor((s % 3600) / 60);
   const seconds = s % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function stopTimer() {
@@ -73,20 +75,22 @@ function renderTimerLayout(tx) {
         `<li>
           <div class="spa-service-item-info">
             <div class="spa-service-name">${it.service_name}</div>
-            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+            <div class="spa-service-details">${
+              it.duration_minutes
+            } MINUTES<br>${it.area || "FULL BACK"}</div>
           </div>
           <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
         </li>`
     )
     .join("");
-  
+
   panel.innerHTML = `
     <div class="card">
       <div class="spa-timer-finished">
         <div class="spa-timer-display" id="service_timer">00:00:00</div>
       </div>
       <ul id="items_list">${items}</ul>
-      <div class="controls">
+      <div class="controls-therapist">
         <button id="btn_finish" disabled>SERVICE FINISHED</button>
       </div>
     </div>
@@ -109,13 +113,15 @@ function showTimerFinishedLayout(tx) {
         `<li>
           <div class="spa-service-item-info">
             <div class="spa-service-name">${it.service_name}</div>
-            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+            <div class="spa-service-details">${
+              it.duration_minutes
+            } MINUTES<br>${it.area || "FULL BACK"}</div>
           </div>
           <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
         </li>`
     )
     .join("");
-  
+
   panel.innerHTML = `
     <div class="card">
       <div class="spa-timer-finished">
@@ -138,7 +144,8 @@ function renderCurrent(tx) {
   const panel = document.getElementById("current_txn");
 
   if (!tx) {
-    panel.innerHTML = '<div class="spa-no-transaction">No current transaction. Please go back to the queue to confirm a customer.</div>';
+    panel.innerHTML =
+      '<div class="spa-no-transaction">No current transaction. Please go back to the queue to confirm a customer.</div>';
     currentTxn = null;
     if (finishTimeout) {
       clearTimeout(finishTimeout);
@@ -154,17 +161,19 @@ function renderCurrent(tx) {
         `<li>
           <div class="spa-service-item-info">
             <div class="spa-service-name">${it.service_name}</div>
-            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+            <div class="spa-service-details">${
+              it.duration_minutes
+            } MINUTES<br>${it.area || "FULL BACK"}</div>
           </div>
           <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
           <button class="remove_item" data-itemid="${it.id}">REMOVE</button>
         </li>`
     )
     .join("");
-  
+
   // Check if service is in progress and show timer layout
   const isInService = tx.status === "in_service" && tx.service_start_at;
-  
+
   if (isInService) {
     panel.innerHTML = `
       <div class="card">
@@ -181,8 +190,12 @@ function renderCurrent(tx) {
     panel.innerHTML = `
       <div class="card">
         <div class="spa-service-status">
-          <div class="spa-service-code">Code: ${tx.code || ""} <span class="badge">${tx.status}</span></div>
-          <div class="spa-service-total">Total: ₱${tx.total_amount.toFixed(2)} | Duration: ${tx.total_duration_minutes} min</div>
+          <div class="spa-service-code">Code: ${
+            tx.code || ""
+          } <span class="badge">${tx.status}</span></div>
+          <div class="spa-service-total">Total: ₱${tx.total_amount.toFixed(
+            2
+          )} | Duration: ${tx.total_duration_minutes} min</div>
         </div>
         <ul id="items_list">${items}</ul>
         <div class="controls">
@@ -245,9 +258,13 @@ function renderCurrent(tx) {
   if (startBtn) {
     startBtn.onclick = () => {
       socket.emit("therapist_start_service", { transaction_id: tx.id });
-      
+
       // Immediately show timer layout
-      const updatedTx = { ...tx, status: "in_service", service_start_at: new Date().toISOString() };
+      const updatedTx = {
+        ...tx,
+        status: "in_service",
+        service_start_at: new Date().toISOString(),
+      };
       renderTimerLayout(updatedTx);
       startTimer(updatedTx);
     };
@@ -284,8 +301,8 @@ socket.on("therapist_finish_result", (res) => {
   if (res && res.ok) {
     alert("Service has been completed. Redirecting back to queue...");
     // Redirect back to therapist queue page
-    const url = new URL('/therapist', window.location.origin);
-    if (authToken) url.searchParams.set('auth_token', authToken);
+    const url = new URL("/therapist", window.location.origin);
+    if (authToken) url.searchParams.set("auth_token", authToken);
     window.location.href = url.toString();
   }
 });

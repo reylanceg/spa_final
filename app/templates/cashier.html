@@ -8,22 +8,26 @@
       <p>{{cashier_name}}</p>
     </div>
     <div class="controls-container">
-      
       <button id="pick_next" class="cashier-confirm-button">
         CONFIRM (FIFO)
       </button>
-      <a href="/cashier/payment-management" class="cashier-payment-link">Payment Management</a>
-      
+      <a href="/cashier/payment-management" class="cashier-payment-link"
+        >Payment Management</a
+      >
     </div>
     <a
-        href="/logout/cashier"
-        onclick="sessionStorage.removeItem('cashier_auth_token');"
-        class="logout"
-        >Logout</a
-      >
+      href="/logout/cashier"
+      onclick="sessionStorage.removeItem('cashier_auth_token');"
+      class="logout"
+      >Logout</a
+    >
   </div>
   <div class="cashier-pending-services-container">
     <section class="cashier-pending-services">
+      <div class="cashier-pending-header">
+        <h3>Waiting Queue</h3>
+        <h3 style="margin-right: 20px">Code</h3>
+      </div>
       <ul id="cashier_waiting"></ul>
     </section>
   </div>

@@ -310,6 +310,7 @@ li {
   align-items: center;
   margin-bottom: 12px;
 }
+
 .total {
   font-weight: bold;
   margin-top: 8px;
@@ -1346,7 +1347,7 @@ body {
   /* align-items: center; */
   justify-content: space-between;
   padding: 20px;
-  margin-right: 50px;
+  /* margin-right: 50px; */
 }
 
 .therapist-pending-services {
@@ -1807,6 +1808,11 @@ a.logout:hover {
   background-color: #7a1f1e;
   color: white;
   transform: translateY(-1px);
+}
+
+.cashier-pending-header {
+  display: flex;
+  justify-content: space-between;
 }
 
 .cashier-payment-page {
