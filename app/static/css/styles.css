@@ -1812,6 +1812,7 @@ a.logout:hover {
 .cashier-payment-page {
   background: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
     url(/static/img/about_page_background.jpg) no-repeat center/cover;
+  height: 100vh;
 }
 
 /* Casheir page end */
@@ -2641,3 +2642,7 @@ a.logout:hover {
 }
 
 /* Monitor page end */
+
+.spa-no-transaction {
+  color: #fff;
+}
