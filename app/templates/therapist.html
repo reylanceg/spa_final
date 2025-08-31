@@ -1,6 +1,9 @@
 {% extends 'base.html' %} {% block content %}
 <div class="therapist-page-container">
   <div class="controls">
+    <div id="room_number" class="therapist-room-number">
+      Room {{room_number}}
+    </div>
     <!-- <label
     >Name
     <input
@@ -14,19 +17,22 @@
     <!-- <label
     >Room
     <input id="room_number" placeholder="101" value="{{ room_number or '' }}"
-  /></label> -->
+    /></label> -->
     <div class="controls-container">
       <div id="therapist_name" hidden>
         <p>{{therapist_name}}</p>
       </div>
-      <div id="room_number" class="therapist-room-number">
-        Room {{room_number}}
-      </div>
+      
       <button id="confirm_next" class="therapist-confirm-button">
         Confirm FIFO
       </button>
+      <a href="/therapist/service-management" class="service-management-link">
+        <button class="therapist-confirm-button service-management-button">
+          Service Management
+        </button>
+      </a>
     </div>
-    <a href="/logout/therapist">Logout</a>
+    <a href="/logout/therapist" onclick="sessionStorage.removeItem('therapist_auth_token');" class="logout">Logout</a>
   </div>
   <div class="therapist-pending-services-container">
     <section class="therapist-pending-services">

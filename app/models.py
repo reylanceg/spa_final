@@ -80,6 +80,8 @@ class Therapist(db.Model):
     name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     room_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    auth_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
+    token_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     transactions: Mapped[list[Transaction]] = relationship("Transaction", back_populates="therapist")
 
@@ -99,6 +101,8 @@ class Cashier(db.Model):
     name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     counter_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    auth_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
+    token_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     payments: Mapped[list[Payment]] = relationship("Payment", back_populates="cashier")
 

@@ -1,40 +1,40 @@
 {% extends 'base.html' %} {% block content %}
-<h2>Cashier</h2>
-<div class="controls">
-  <div id="cashier_name" hidden>
-    <p>{{cashier_name}}</p>
+<div class="cashier-page-container">
+  <div class="controls">
+    <div id="counter_number" class="cashier-counter-badge">
+      COUNTER {{counter_number}}
+    </div>
+    <div id="cashier_name" hidden>
+      <p>{{cashier_name}}</p>
+    </div>
+    <div class="controls-container">
+      
+      <button id="pick_next" class="cashier-confirm-button">
+        CONFIRM (FIFO)
+      </button>
+      <a href="/cashier/payment-management" class="cashier-payment-link">Payment Management</a>
+      
+    </div>
+    <a
+        href="/logout/cashier"
+        onclick="sessionStorage.removeItem('cashier_auth_token');"
+        class="logout"
+        >Logout</a
+      >
   </div>
-  <div id="counter_number">
-    <p>{{counter_number}}</p>
+  <div class="cashier-pending-services-container">
+    <section class="cashier-pending-services">
+      <ul id="cashier_waiting"></ul>
+    </section>
   </div>
-  <!-- <label
-    >Name
-    <input
-      id="cashier_name"
-      placeholder="Cashier 1"
-      value="{{ cashier_name or '' }}"
-  /></label> -->
-  <!-- <label
-    >Counter
-    <input
-      id="counter_number"
-      placeholder="1"
-      value="{{ counter_number or '' }}"
-  /></label> -->
-  <button id="pick_next">Pick Next (FIFO)</button>
-  <a href="/logout/cashier">Logout</a>
-</div>
-<div class="grid">
-  <section>
-    <h3>Waiting Queue</h3>
-    <ul id="cashier_waiting"></ul>
-    <h3>Assigned To You</h3>
-    <ul id="cashier_assigned"></ul>
-  </section>
-  <section>
-    <h3>Payment</h3>
-    <div id="payment_panel"></div>
-  </section>
+  <!-- <div class="cashier-payment-container">
+    <section class="cashier-payment-section">
+      <h3>Assigned To You</h3>
+      <ul id="cashier_assigned"></ul>
+      <h3>Payment</h3>
+      <div id="payment_panel"></div>
+    </section>
+  </div> -->
 </div>
 <script src="/static/js/cashier.js"></script>
 {% endblock %}

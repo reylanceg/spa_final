@@ -71,64 +71,6 @@ function getAllCategories() {
   }));
 }
 
-// function getServicesByCategory(categoryName) {
-//   return servicesData.filter((svc) => svc.category === categoryName);
-// }
-
-// function getAllCategories() {
-//   const categories = [...new Set(servicesData.map((svc) => svc.category))];
-//   return categories.map((cat) => ({
-//     name: cat,
-//     description: getCategoryDescription(cat),
-//     serviceCount: getServicesByCategory(cat).length,
-//   }));
-// }
-
-// Utility functions to work with classification data
-// function getServicesByClassification(classification) {
-//   return servicesData.filter((svc) => svc.classification === classification);
-// }
-
-// function getAllClassifications() {
-//   const classifications = [
-//     ...new Set(
-//       servicesData
-//         .map((svc) => svc.classification)
-//         .filter((c) => c && c !== "Not specified")
-//     ),
-//   ];
-//   return classifications.map((cls) => ({
-//     name: cls,
-//     serviceCount: getServicesByClassification(cls).length,
-//     services: getServicesByClassification(cls),
-//   }));
-// }
-
-// function getServicesByCategoryAndClassification(categoryName, classification) {
-//   return servicesData.filter(
-//     (svc) =>
-//       svc.category === categoryName && svc.classification === classification
-//   );
-// }
-
-// Function to populate service cards with category descriptions
-function populateServiceCards() {
-  const serviceCards = document.querySelectorAll(".services-card");
-
-  serviceCards.forEach((card) => {
-    const title = card.dataset.title;
-    if (title && title !== "All Services") {
-      const description = getCategoryDescription(title);
-      if (description) {
-        const descElement = card.querySelector("p");
-        if (descElement) {
-          descElement.textContent = description;
-        }
-      }
-    }
-  });
-}
-
 function renderCart() {
   const cartEl = document.getElementById("cart");
   cartEl.innerHTML = "";
@@ -141,16 +83,19 @@ function renderCart() {
       (s) => String(s.classification_id) === String(item.classification_id)
     );
     const category = svc ? svc.category : "Unknown";
+    const serviceName = item.name || (svc ? svc.name : "Unknown Service");
 
     // <button class="remove" data-idx="${idx}">Remove</button>
     const li = document.createElement("li");
     li.innerHTML = `
       <div style="display:flex; justify-content: space-between" class="cart-items-container">
-        <button class="remove" data-idx="${idx}">Remove</button>
-        <div>
-          <span class="cart-category" style="font-weight:bold">${category}</span>
-          <div style="font-size:0.95em;">
-            <span style="font-size: 0.8em">${item.name}</span>
+        <div class="cart-remove-item-container">
+          <button class="remove" data-idx="${idx}"><img src="/static/img/trash_bin.svg" class="trash_bin"></button>
+        </div>
+        <div class="cart-details-container">
+          <div><span class="cart-category" style="font-weight:bold">${serviceName}</span></div>
+          <div style="font-size:0.95em; text-align: center;">
+            <div><span style="font-size: 0.8em">${category}</span></div>
             <div><span class="cart-duration" style="font-size: 0.8em">${
               item.mins
             } Minutes,</span>
@@ -172,15 +117,6 @@ function renderCart() {
   document.getElementById("confirm").disabled = cart.length === 0;
   saveCartToStorage();
 }
-
-// function syncModalSelectionButtons() {
-//   if (!servicesModalList) return;
-//   servicesModalList.querySelectorAll(".add-from-modal").forEach((b) => {
-//     const selected = cart.some((i) => i.id == b.dataset.id);
-//     b.classList.toggle("selected", selected);
-//     b.textContent = selected ? "Added" : "Add";
-//   });
-// }
 
 // All confirmation details are shown only in the modal
 
@@ -410,15 +346,6 @@ function openServicesModal(title) {
   servicesModal.classList.remove("hidden");
 }
 
-// ${
-//               svc.category_description
-//                 ? `<div class="category-description" style="font-size: 0.9em; color: #666; margin-top: 4px;">${svc.category_description}</div>`
-//                 : ""
-//             }
-{
-  /* <span class="card-modal-service-name">${svc.name}</span> */
-}
-
 function bindServiceCardEvents() {
   // Bind service card click events
   document.querySelectorAll(".services-card").forEach((card) => {
@@ -437,8 +364,13 @@ function bindEvents() {
   // Remove old direct-add binding from hidden/removed list
 
   document.getElementById("cart").addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove")) {
-      const idx = parseInt(e.target.dataset.idx);
+    // Check if clicked element is the remove button or the trash icon inside it
+    const removeButton = e.target.classList.contains("remove") 
+      ? e.target 
+      : e.target.closest(".remove");
+    
+    if (removeButton) {
+      const idx = parseInt(removeButton.dataset.idx);
       cart.splice(idx, 1);
       renderCart(); // This will also save to storage
     }
@@ -580,11 +512,10 @@ socket.on("customer_txn_update", (tx) => {
 });
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Bind events immediately when DOM is ready
   bindEvents();
-  renderCart();
-  
+
   // Cart toggle functionality
   const cartContainer = document.querySelector(".cart-container");
   const toggle = document.querySelector(".toggle");
@@ -600,9 +531,12 @@ document.addEventListener('DOMContentLoaded', () => {
       link.setAttribute("aria-current", "page");
     }
   });
-  
-  // Load services data
+
+  // Load services data first, then render cart
   loadServices().then(() => {
-    //populateServiceCards(); // Call this function after servicesData is loaded
+    renderCart(); // Render cart after services data is loaded
+    //populateServiceCards(); // UNUSED: Call this function after servicesData is loaded
   });
 });
+
+console.log(cart);

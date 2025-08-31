@@ -1,4 +1,24 @@
-const socket = io();
+// Get auth token from sessionStorage
+const authToken = sessionStorage.getItem('therapist_auth_token');
+
+// Initialize socket.io with auth token
+const socket = io({
+  auth: {
+    token: authToken
+  },
+  query: {
+    auth_token: authToken
+  }
+});
+
+// Add token to fetch requests
+function fetchWithAuth(url, options = {}) {
+  const headers = {
+    ...options.headers,
+    'X-Auth-Token': authToken
+  };
+  return fetch(url, { ...options, headers });
+}
 
 let currentTxn = null;
 let finishTimeout = null;
@@ -6,7 +26,10 @@ let intervalId = null;
 
 function formatSeconds(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds));
-  return `${s} seconds`;
+  const hours = Math.floor(s / 3600);
+  const minutes = Math.floor((s % 3600) / 60);
+  const seconds = s % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
 function stopTimer() {
@@ -34,20 +57,88 @@ function startTimer(tx) {
     timerEl.textContent = formatSeconds(remaining);
     if (remaining <= 0) {
       stopTimer();
-      // enable finish button if present
-      const finishBtn = document.getElementById("btn_finish");
-      if (finishBtn) finishBtn.disabled = false;
+      // Show timer finished layout
+      showTimerFinishedLayout(tx);
     }
   }
   tick();
   intervalId = setInterval(tick, 1000);
 }
 
+function renderTimerLayout(tx) {
+  const panel = document.getElementById("current_txn");
+  const items = tx.items
+    .map(
+      (it) =>
+        `<li>
+          <div class="spa-service-item-info">
+            <div class="spa-service-name">${it.service_name}</div>
+            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+          </div>
+          <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
+        </li>`
+    )
+    .join("");
+  
+  panel.innerHTML = `
+    <div class="card">
+      <div class="spa-timer-finished">
+        <div class="spa-timer-display" id="service_timer">00:00:00</div>
+      </div>
+      <ul id="items_list">${items}</ul>
+      <div class="controls">
+        <button id="btn_finish" disabled>SERVICE FINISHED</button>
+      </div>
+    </div>
+  `;
+
+  // Bind the finish button
+  const finishBtn = document.getElementById("btn_finish");
+  if (finishBtn) {
+    finishBtn.onclick = () => {
+      socket.emit("therapist_finish_service", { transaction_id: tx.id });
+    };
+  }
+}
+
+function showTimerFinishedLayout(tx) {
+  const panel = document.getElementById("current_txn");
+  const items = tx.items
+    .map(
+      (it) =>
+        `<li>
+          <div class="spa-service-item-info">
+            <div class="spa-service-name">${it.service_name}</div>
+            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+          </div>
+          <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
+        </li>`
+    )
+    .join("");
+  
+  panel.innerHTML = `
+    <div class="card">
+      <div class="spa-timer-finished">
+        <div class="spa-timer-display">00:00:00</div>
+      </div>
+      <ul id="items_list">${items}</ul>
+      <div class="controls">
+        <button id="btn_done_service">DONE SERVICE</button>
+      </div>
+    </div>
+  `;
+
+  // Bind the done service button
+  document.getElementById("btn_done_service").onclick = () => {
+    socket.emit("therapist_finish_service", { transaction_id: tx.id });
+  };
+}
+
 function renderCurrent(tx) {
   const panel = document.getElementById("current_txn");
 
   if (!tx) {
-    panel.innerHTML = "<p>No current transaction. Please go back to the queue to confirm a customer.</p>";
+    panel.innerHTML = '<div class="spa-no-transaction">No current transaction. Please go back to the queue to confirm a customer.</div>';
     currentTxn = null;
     if (finishTimeout) {
       clearTimeout(finishTimeout);
@@ -60,32 +151,52 @@ function renderCurrent(tx) {
   const items = tx.items
     .map(
       (it) =>
-        `<li>${it.service_name} - ₱${it.price.toFixed(2)} (${it.duration_minutes}s)
-          <button class="remove_item" data-itemid="${it.id}">Remove</button>
+        `<li>
+          <div class="spa-service-item-info">
+            <div class="spa-service-name">${it.service_name}</div>
+            <div class="spa-service-details">${it.duration_minutes} MINUTES<br>${it.area || 'FULL BACK'}</div>
+          </div>
+          <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
+          <button class="remove_item" data-itemid="${it.id}">REMOVE</button>
         </li>`
     )
     .join("");
-  panel.innerHTML = `
-    <div class="card">
-      <div><strong>Code:</strong> ${tx.code || ""} <span class="badge">${
-    tx.status
-  }</span></div>
-      <div><strong>Room:</strong> ${tx.room_number || ""}</div>
-      <div><strong>Total:</strong> ₱${tx.total_amount.toFixed(
-        2
-      )} | <strong>Duration:</strong> ${tx.total_duration_minutes}s</div>
-      <div><strong>Timer:</strong> <span id="service_timer">-- seconds</span></div>
-      <ul id="items_list">${items}</ul>
-      <div class="controls">
-        <button id="btn_start">Start Service</button>
-        <select id="add_service_select"></select>
-        <button id="btn_add">Add Service</button>
-        <button id="btn_finish" disabled>Service Finished</button>
+  
+  // Check if service is in progress and show timer layout
+  const isInService = tx.status === "in_service" && tx.service_start_at;
+  
+  if (isInService) {
+    panel.innerHTML = `
+      <div class="card">
+        <div class="spa-timer-finished">
+          <div class="spa-timer-display" id="service_timer">00:00:00</div>
+        </div>
+        <ul id="items_list">${items}</ul>
+        <div class="controls">
+          <button id="btn_finish" disabled>SERVICE FINISHED</button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  } else {
+    panel.innerHTML = `
+      <div class="card">
+        <div class="spa-service-status">
+          <div class="spa-service-code">Code: ${tx.code || ""} <span class="badge">${tx.status}</span></div>
+          <div class="spa-service-total">Total: ₱${tx.total_amount.toFixed(2)} | Duration: ${tx.total_duration_minutes} min</div>
+        </div>
+        <ul id="items_list">${items}</ul>
+        <div class="controls">
+          <div class="spa-add-service-container">
+            <select id="add_service_select"></select>
+            <button id="btn_add">ADD</button>
+          </div>
+          <button id="btn_start">START SERVICE</button>
+        </div>
+      </div>
+    `;
+  }
 
-  fetch("/api/services")
+  fetchWithAuth("/api/services")
     .then((r) => r.json())
     .then((list) => {
       const sel = document.getElementById("add_service_select");
@@ -112,54 +223,53 @@ function renderCurrent(tx) {
       .querySelectorAll(".remove_item")
       .forEach((btn) => (btn.disabled = disabled));
   }
-  itemsList.addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove_item")) {
-      const id = parseInt(e.target.getAttribute("data-itemid"));
-      socket.emit("therapist_remove_item", { transaction_item_id: id });
-      // Prevent starting while waiting for server update
-      if (startBtn) startBtn.disabled = true;
-    }
-  });
+
+  // Only add remove button listeners if not in service
+  if (!isInService) {
+    itemsList.addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove_item")) {
+        const id = parseInt(e.target.getAttribute("data-itemid"));
+        socket.emit("therapist_remove_item", { transaction_item_id: id });
+        // Prevent starting while waiting for server update
+        if (startBtn) startBtn.disabled = true;
+      }
+    });
+  }
 
   // If already in service, start timer immediately
-  if (tx.status === "in_service" && tx.service_start_at) {
-    // disable edits during timer
-    startBtn.disabled = true;
-    addBtn.disabled = true;
-    addSelect.disabled = true;
-    setRemoveButtonsDisabled(true);
+  if (isInService) {
     startTimer(tx);
   }
 
-  startBtn.onclick = () => {
-    socket.emit("therapist_start_service", { transaction_id: tx.id });
-    const disableSecs = tx.total_duration_minutes;
-    startBtn.disabled = true;
-    addBtn.disabled = true;
-    finishBtn.disabled = true;
-    setRemoveButtonsDisabled(true);
-    if (addSelect) addSelect.disabled = true;
+  // Bind start button only if it exists (not in service)
+  if (startBtn) {
+    startBtn.onclick = () => {
+      socket.emit("therapist_start_service", { transaction_id: tx.id });
+      
+      // Immediately show timer layout
+      const updatedTx = { ...tx, status: "in_service", service_start_at: new Date().toISOString() };
+      renderTimerLayout(updatedTx);
+      startTimer(updatedTx);
+    };
+  }
 
-    // start local timer now
-    startTimer({ ...tx, service_start_at: new Date().toISOString() });
+  // Bind add button only if it exists (not in service)
+  if (addBtn) {
+    addBtn.onclick = () => {
+      const sid = document.getElementById("add_service_select").value;
+      socket.emit("therapist_add_service", {
+        transaction_id: tx.id,
+        service_id: sid,
+      });
+    };
+  }
 
-    if (finishTimeout) clearTimeout(finishTimeout);
-    finishTimeout = setTimeout(() => {
-      finishBtn.disabled = false;
-    }, disableSecs * 1000);
-  };
-
-  document.getElementById("btn_add").onclick = () => {
-    const sid = document.getElementById("add_service_select").value;
-    socket.emit("therapist_add_service", {
-      transaction_id: tx.id,
-      service_id: sid,
-    });
-  };
-
-  finishBtn.onclick = () => {
-    socket.emit("therapist_finish_service", { transaction_id: tx.id });
-  };
+  // Bind finish button if it exists
+  if (finishBtn) {
+    finishBtn.onclick = () => {
+      socket.emit("therapist_finish_service", { transaction_id: tx.id });
+    };
+  }
 }
 
 function bindControls() {
@@ -174,7 +284,9 @@ socket.on("therapist_finish_result", (res) => {
   if (res && res.ok) {
     alert("Service has been completed. Redirecting back to queue...");
     // Redirect back to therapist queue page
-    window.location.href = "/therapist";
+    const url = new URL('/therapist', window.location.origin);
+    if (authToken) url.searchParams.set('auth_token', authToken);
+    window.location.href = url.toString();
   }
 });
 

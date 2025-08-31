@@ -1,32 +1,27 @@
 {% extends 'base.html' %} {% block content %}
-<div class="service-management-container">
-  <h2>Service Management</h2>
-  <div class="controls">
-    <label
-      >Name
-      <input
-        id="therapist_name"
-        placeholder="Therapist 1"
-        value="{{ therapist_name or '' }}"
-        readonly
-    /></label>
-    <label
-      >Room
-      <input
-        id="room_number"
-        placeholder="101"
-        value="{{ room_number or '' }}"
-        readonly
-    /></label>
-    <!-- <a href="/therapist" class="btn-back">Back to Queue</a> -->
-    <!-- <a href="/logout/therapist">Logout</a> -->
+<div class="spa-service-page">
+  <div class="spa-service-container">
+    <div class="service-management-header">
+      <a href="/therapist" class="back-to-therapist-link">
+        <button class="back-to-therapist-button">← Back to Queue</button>
+      </a>
+    </div>
+    <div class="room-badge">
+      <span id="room_display">ROOM {{ room_number or '101' }}</span>
+    </div>
+    <div class="service-card-main">
+      <div id="current_txn">
+        <!-- Default content when no transaction -->
+        <div class="spa-no-transaction">
+          <p>No current transaction. Please go back to the queue to confirm a customer.</p>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="grid">
-    <section>
-      <h3>Current Service</h3>
-      <div id="current_txn"></div>
-    </section>
-  </div>
+  
+  <!-- Hidden inputs for functionality -->
+  <input type="hidden" id="therapist_name" value="{{ therapist_name or '' }}" />
+  <input type="hidden" id="room_number" value="{{ room_number or '' }}" />
 </div>
 <script src="/static/js/service_management.js"></script>
 {% endblock %}

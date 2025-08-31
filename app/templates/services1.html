@@ -1,10 +1,5 @@
 {% extends 'base.html' %} {% block content %}
-<!-- <nav class="topnav">
-      <a href="/customer">Customer</a>
-      <a href="/therapist">Therapist</a>
-      <a href="/cashier">Cashier</a>
-      <a href="/monitor">Monitor</a>
-</nav> -->
+
 <header>
   <div class="logo-container">
     <a href="/">
@@ -18,6 +13,7 @@
     <a href="/services2" class="site-link">Hollistic Recovery</a>
   </div>
 </header>
+
 <div class="customer-services-description-container">
   <h1>Best Selling Services</h1>
   <p>
@@ -110,21 +106,435 @@
 <!-- Confirmation Modal -->
 <div id="confirm_modal" class="modal hidden">
   <div class="modal_backdrop"></div>
-  <div class="modal_content">
-    <div class="modal_header">
-      <h3>Confirmation</h3>
+  <div class="modal_content confirm-modal-content">
+    <div class="modal_header confirm-modal-header">
+      <div class="success-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" fill="#10B981" stroke="#10B981" stroke-width="2"/>
+          <path d="m9 12 2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 class="confirm-title">Booking Confirmed!</h3>
+      <p class="confirm-subtitle">Your spa services have been successfully booked</p>
     </div>
-    <div class="modal_body">
-      <p>Transaction Code: <strong id="modal_txn_code"></strong></p>
-      <h4>Selected Services</h4>
-      <ul id="modal_items"></ul>
-      <div class="total">Total: ₱<span id="modal_total">0.00</span></div>
+    <div class="modal_body confirm-modal-body">
+      <div class="transaction-info">
+        <div class="info-card">
+          <div class="info-label">Transaction Code</div>
+          <div class="info-value" id="modal_txn_code">Loading...</div>
+        </div>
+      </div>
+      
+      <div class="services-summary">
+        <h4 class="summary-title">Service Summary</h4>
+        <div class="services-list-container">
+          <ul id="modal_items" class="modal-services-list"></ul>
+        </div>
+      </div>
+      
+      <div class="payment-summary">
+        <div class="total-row">
+          <span class="total-label">Total Amount</span>
+          <span class="total-amount">₱<span id="modal_total">0.00</span></span>
+        </div>
+      </div>
+      
+      <div class="next-steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-text">Please proceed to the waiting area</div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-text">A therapist will be assigned to you shortly</div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-text">Payment will be processed after your service</div>
+        </div>
+      </div>
     </div>
-    <div class="modal_footer">
-      <button id="print_receipt" class="print-btn">Print Receipt</button>
-      <button id="modal_close">OK</button>
+    <div class="modal_footer confirm-modal-footer">
+      <button id="print_receipt" class="print-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Print Receipt
+      </button>
+      <button id="modal_close" class="ok-btn">Continue</button>
     </div>
   </div>
 </div>
+<style>
+/* Enhanced Confirm Modal Styles */
+.confirm-modal-content {
+  width: min(480px, 95vw);
+  max-height: 90vh;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow-y: auto;
+}
+
+.confirm-modal-header {
+  text-align: center;
+  padding: 24px 20px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.success-icon {
+  margin: 0 auto 12px;
+  width: 40px;
+  height: 40px;
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.confirm-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 6px;
+}
+
+.confirm-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+.confirm-modal-body {
+  padding: 20px;
+}
+
+.transaction-info {
+  margin-bottom: 16px;
+}
+
+.info-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #902726;
+  font-family: 'Courier New', monospace;
+}
+
+.services-summary {
+  margin-bottom: 16px;
+}
+
+.summary-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.services-list-container {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.modal-services-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-services-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.modal-services-list li:last-child {
+  border-bottom: none;
+}
+
+.modal-services-list li .service-name {
+  font-weight: 500;
+  color: #374151;
+}
+
+.modal-services-list li .service-price {
+  font-weight: 600;
+  color: #902726;
+}
+
+.payment-summary {
+  background: linear-gradient(135deg, #902726 0%, #b91c1c 100%);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.total-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+}
+
+.next-steps {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  background: #0ea5e9;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.confirm-modal-footer {
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-radius: 0 0 16px 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.print-btn, .ok-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+}
+
+.print-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.print-btn:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.ok-btn {
+  background: #902726;
+  color: white;
+  min-width: 120px;
+}
+
+.ok-btn:hover {
+  background: #7c2d12;
+  transform: translateY(-1px);
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .confirm-modal-content {
+    width: 500px;
+  }
+}
+
+/* Medium screens */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .confirm-modal-content {
+    width: min(480px, 85vw);
+  }
+}
+
+/* Small tablets */
+@media (max-width: 767px) and (min-width: 481px) {
+  .confirm-modal-content {
+    width: min(400px, 90vw);
+  }
+  
+  .confirm-modal-header {
+    padding: 20px 16px 16px;
+  }
+  
+  .confirm-modal-body {
+    padding: 18px 16px;
+  }
+  
+  .confirm-modal-footer {
+    padding: 14px 16px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .confirm-modal-content {
+    width: 95vw;
+    max-width: none;
+  }
+  
+  .confirm-modal-header {
+    padding: 18px 14px 14px;
+  }
+  
+  .confirm-title {
+    font-size: 18px;
+  }
+  
+  .confirm-subtitle {
+    font-size: 13px;
+  }
+  
+  .confirm-modal-body {
+    padding: 16px 14px;
+  }
+  
+  .summary-title {
+    font-size: 15px;
+  }
+  
+  .modal-services-list li {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+  
+  .total-label {
+    font-size: 15px;
+  }
+  
+  .total-amount {
+    font-size: 18px;
+  }
+  
+  .step-text {
+    font-size: 12px;
+  }
+  
+  .confirm-modal-footer {
+    padding: 12px 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .print-btn, .ok-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .confirm-modal-content {
+    width: 98vw;
+  }
+  
+  .confirm-modal-header {
+    padding: 16px 12px 12px;
+  }
+  
+  .confirm-modal-body {
+    padding: 14px 12px;
+  }
+  
+  .confirm-modal-footer {
+    padding: 10px 12px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .confirm-modal-content {
+    max-height: 95vh;
+  }
+  
+  .confirm-modal-header {
+    padding: 16px 20px 14px;
+  }
+  
+  .confirm-modal-body {
+    padding: 16px 20px;
+  }
+  
+  .next-steps {
+    padding: 12px;
+  }
+  
+  .step-item {
+    margin-bottom: 6px;
+  }
+  
+  .confirm-modal-footer {
+    padding: 12px 20px;
+  }
+}
+</style>
 <script src="/static/js/customer.js"></script>
 {% endblock %}

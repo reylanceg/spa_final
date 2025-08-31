@@ -1,4 +1,24 @@
-const socket = io();
+// Get auth token from sessionStorage
+const authToken = sessionStorage.getItem('cashier_auth_token');
+
+// Initialize socket.io with auth token
+const socket = io({
+  auth: {
+    token: authToken
+  },
+  query: {
+    auth_token: authToken
+  }
+});
+
+// Add token to fetch requests
+function fetchWithAuth(url, options = {}) {
+  const headers = {
+    ...options.headers,
+    'X-Auth-Token': authToken
+  };
+  return fetch(url, { ...options, headers });
+}
 
 let currentTxn = null;
 let myName = null;
@@ -10,13 +30,87 @@ function li(text) {
 }
 
 function renderQueues(data) {
+  console.log("Cashier renderQueues data:", data); // Debug log
   const waitingEl = document.getElementById("cashier_waiting");
   const assignedEl = document.getElementById("cashier_assigned");
   if (waitingEl) {
     waitingEl.innerHTML = "";
-    (data.finished || []).forEach((t) =>
-      waitingEl.appendChild(li(`${t.code} - ₱${t.total_amount.toFixed(2)}`))
-    );
+    (data.finished || []).forEach((t) => {
+      console.log("Processing transaction:", t); // Debug log
+      const queueItem = document.createElement("li");
+      queueItem.className = "queue-item";
+      
+      // Create services container to hold all services
+      const servicesContainer = document.createElement("div");
+      servicesContainer.className = "cashier-services-container";
+      
+      // Use selected_services which is the correct property name based on therapist queue
+      const services = t.selected_services || t.items || t.services || [];
+      console.log("Services found:", services); // Debug log
+      
+      // Render each service in the transaction
+      if (services && services.length > 0) {
+        services.forEach((service) => {
+          console.log("Processing service:", service); // Debug log
+          const serviceRow = document.createElement("div");
+          serviceRow.className = "cashier-service-row";
+          
+          const serviceInfo = document.createElement("div");
+          serviceInfo.className = "cashier-service-info";
+          
+          const serviceNameEl = document.createElement("div");
+          serviceNameEl.className = "cashier-service-name";
+          // Use the correct property names from therapist queue structure
+          serviceNameEl.textContent = service.service_name || service.name || service.service || "UNKNOWN SERVICE";
+          
+          const serviceDetailsEl = document.createElement("div");
+          serviceDetailsEl.className = "cashier-service-details";
+          const duration = service.duration_minutes || service.duration || 0;
+          const area = service.classification_name || service.body_area || service.area || service.classification || 'FULL BODY';
+          serviceDetailsEl.textContent = `${duration} MINUTES • ${area.toUpperCase()}`;
+          
+          serviceInfo.appendChild(serviceNameEl);
+          serviceInfo.appendChild(serviceDetailsEl);
+          serviceRow.appendChild(serviceInfo);
+          servicesContainer.appendChild(serviceRow);
+        });
+      } else {
+        // Fallback if no services - show debug info
+        const serviceRow = document.createElement("div");
+        serviceRow.className = "cashier-service-row";
+        
+        const serviceInfo = document.createElement("div");
+        serviceInfo.className = "cashier-service-info";
+        
+        const serviceNameEl = document.createElement("div");
+        serviceNameEl.className = "cashier-service-name";
+        serviceNameEl.textContent = `NO SERVICES (Debug: ${JSON.stringify(Object.keys(t))})`;
+        
+        serviceInfo.appendChild(serviceNameEl);
+        serviceRow.appendChild(serviceInfo);
+        servicesContainer.appendChild(serviceRow);
+      }
+      
+      // Create code container
+      const codeContainer = document.createElement("div");
+      codeContainer.className = "cashier-service-code";
+      
+      const codeLabel = document.createElement("div");
+      codeLabel.className = "cashier-code-label";
+      codeLabel.textContent = "CODE";
+      
+      const codeNumber = document.createElement("div");
+      codeNumber.className = "cashier-code-number";
+      codeNumber.textContent = t.code.toString().padStart(4, '0');
+      
+      codeContainer.appendChild(codeLabel);
+      codeContainer.appendChild(codeNumber);
+      
+      queueItem.appendChild(servicesContainer);
+      queueItem.appendChild(codeContainer);
+      
+      waitingEl.appendChild(queueItem);
+    });
   }
   if (assignedEl && myName) {
     assignedEl.innerHTML = "";
@@ -29,7 +123,7 @@ function renderQueues(data) {
 }
 
 function refreshQueues() {
-  fetch("/monitor_snapshot")
+  fetchWithAuth("/monitor_snapshot")
     .then((r) => r.json())
     .then((data) => renderQueues(data));
 }
@@ -284,6 +378,8 @@ function bindControls() {
     myName = document.getElementById("cashier_name").value || "Cashier 1";
     const counter_number =
       document.getElementById("counter_number").value || "1";
+    
+    // Claim transaction first, then redirect on success
     socket.emit("cashier_claim_next", { cashier_name: myName, counter_number });
   });
 }
@@ -299,8 +395,9 @@ socket.on("monitor_updated", () => {
 
 socket.on("cashier_claim_result", (res) => {
   if (res.ok) {
-    renderPaymentPanel(res.transaction);
-    refreshQueues();
+    // Store transaction in sessionStorage and redirect to payment management
+    sessionStorage.setItem('current_transaction', JSON.stringify(res.transaction));
+    window.location.href = "/cashier/payment-management";
   } else {
     alert(res.error || "No finished customers");
   }

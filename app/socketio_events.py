@@ -2,9 +2,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from flask import session
+# from flask import session, request  # Unused imports
 from flask_socketio import emit, join_room
-from sqlalchemy import select
+# from sqlalchemy import select  # Unused import
 
 from .extensions import db, socketio
 from .models import (
@@ -17,6 +17,7 @@ from .models import (
     TransactionStatus,
     Payment,
 )
+from .utils.auth_helpers import get_current_therapist, get_current_cashier
 
 
 # Utility serializers
@@ -133,6 +134,7 @@ def customer_confirm_selection(data):
 
     emit("therapist_queue_updated", broadcast=True, to="therapist_queue")
     emit("monitor_updated", broadcast=True, to="monitor")
+    emit("monitor_customer_confirmed", {"code": tx.code, "customer": customer_name}, to="monitor")
 
     # Send initial transaction snapshot back to the customer so UI can show code, items, and total right away
     emit("customer_selection_received", {"transaction_id": tx.id, "transaction": serialize_transaction(tx)})
@@ -155,25 +157,17 @@ def monitor_subscribe():
 
 @socketio.on("therapist_confirm_next")
 def therapist_confirm_next(data):
-    # Prefer authenticated therapist from session
-    therapist: Therapist | None = None
-    therapist_id = session.get("therapist_id")
-    if therapist_id:
-        therapist = db.session.get(Therapist, int(therapist_id))
+    # Get authenticated therapist from token or session
+    # Tuple Unpacking
+    therapist, _ = get_current_therapist()
+    
+    if not therapist:
+        emit("therapist_confirm_result", {"ok": False, "error": "Authentication required"})
+        return
 
-    room_number = None
-    if therapist:
-        room_number = therapist.room_number
-    else:
-        # Fallback to client-provided (not recommended; therapist page is login-gated)
-        therapist_name = data.get("therapist_name")
-        room_number = data.get("room_number")
-        therapist = Therapist.query.filter_by(name=therapist_name).first()
-        if therapist is None:
-            therapist = Therapist(name=therapist_name, room_number=room_number)
-            db.session.add(therapist)
-            db.session.flush()
+    room_number = therapist.room_number
 
+    # Type Annotation
     tx: Transaction | None = (
         Transaction.query
         .filter_by(status=TransactionStatus.pending_therapist)
@@ -298,12 +292,7 @@ def therapist_remove_item(data):
 
 @socketio.on("therapist_get_current_transaction")
 def therapist_get_current_transaction():
-    therapist_id = session.get("therapist_id")
-    if not therapist_id:
-        emit("therapist_current_transaction", None)
-        return
-    
-    therapist = db.session.get(Therapist, therapist_id)
+    therapist, _ = get_current_therapist()
     if not therapist:
         emit("therapist_current_transaction", None)
         return
@@ -341,10 +330,7 @@ def therapist_finish_service(data):
 
 @socketio.on("cashier_claim_next")
 def cashier_claim_next(data):
-    cashier: Cashier | None = None
-    cashier_id = session.get("cashier_id")
-    if cashier_id:
-        cashier = db.session.get(Cashier, int(cashier_id))
+    cashier, _ = get_current_cashier()
     if not cashier:
         emit("cashier_claim_result", {"ok": False, "error": "Login required"})
         return
@@ -371,16 +357,32 @@ def cashier_claim_next(data):
     emit("cashier_claim_result", {"ok": True, "transaction": serialize_transaction(tx)})
 
 
+@socketio.on("cashier_get_current_transaction")
+def cashier_get_current_transaction():
+    cashier, _ = get_current_cashier()
+    if not cashier:
+        emit("cashier_current_transaction", None)
+        return
+    
+    # Find current transaction for this cashier
+    tx = Transaction.query.filter(
+        Transaction.assigned_cashier_id == cashier.id,
+        Transaction.status.in_([TransactionStatus.awaiting_payment, TransactionStatus.paying])
+    ).first()
+    
+    if tx:
+        emit("cashier_current_transaction", serialize_transaction(tx))
+    else:
+        emit("cashier_current_transaction", None)
+
+
 @socketio.on("cashier_pay")
 def cashier_pay(data):
     amount_paid = float(data.get("amount_paid"))
     # Automatically set method to "cash" - no need to get from data
     method = "cash"
 
-    cashier: Cashier | None = None
-    cashier_id = session.get("cashier_id")
-    if cashier_id:
-        cashier = db.session.get(Cashier, int(cashier_id))
+    cashier, _ = get_current_cashier()
     if not cashier:
         emit("cashier_pay_result", {"ok": False, "error": "Login required"})
         return

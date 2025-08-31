@@ -10,8 +10,53 @@
     <!--Need nasa loob ng static folder yung extensions folder, di maread extensions folder pag wala sa static folder-->
   </head>
   <body>
+    <script>
+      // Ensure auth_token is consistently present in URL for SSR token-first auth
+      (function () {
+        try {
+          var path = location.pathname;
+          console.log(path);
+          var tokenKey = null;
+          if (
+            path === "/therapist" ||
+            path === "/therapist/service-management"
+          ) {
+            tokenKey = "therapist_auth_token";
+          } else if (path === "/cashier") {
+            tokenKey = "cashier_auth_token";
+          }
+          if (!tokenKey) return;
+
+          var url = new URL(location.href);
+          var urlToken = url.searchParams.get("auth_token");
+          var storageToken = null;
+          try {
+            storageToken = sessionStorage.getItem(tokenKey);
+          } catch (e) {}
+
+          // If URL already carries token, keep sessionStorage in sync and proceed
+          if (urlToken) {
+            if (storageToken !== urlToken) {
+              try {
+                sessionStorage.setItem(tokenKey, urlToken);
+              } catch (e) {}
+            }
+            return;
+          }
+
+          // If URL is missing token but sessionStorage has it, reload with token in URL
+          if (storageToken) {
+            url.searchParams.set("auth_token", storageToken);
+            location.replace(url.toString());
+          }
+        } catch (e) {
+          // no-op on errors
+        }
+      })();
+    </script>
     {% if request.path in ['/login/therapist', '/login/cashier', '/therapist',
-    '/cashier', '/', '/about', '/therapist/service-management']%}
+    '/cashier', '/', '/about', '/therapist/service-management', '/monitor' ,
+    '/cashier/payment-management']%}
     <header class="home-header">
       <div class="company-logo-container">
         <a href="/">
@@ -24,6 +69,9 @@
     </header>
     {% endif %}
     <main>{% block content %}{% endblock %}</main>
+    {% if request.path in ['/login/therapist', '/login/cashier', '/therapist',
+    '/cashier', '/', '/about', '/therapist/service-management', '/monitor' ,
+    '/cashier/payment-management']%}
     <script>
       // Customer page header time/date/day
       function updateClock() {
@@ -69,5 +117,6 @@
       setInterval(updateClock, 1000);
       updateClock(); // run once immediately
     </script>
+    {% endif %}
   </body>
 </html>

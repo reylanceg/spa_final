@@ -1,36 +1,31 @@
 from flask import Blueprint, render_template, session, redirect, url_for
 from ..models import Therapist
+from ..utils.auth_helpers import get_current_therapist
 
 therapist_bp = Blueprint("therapist", __name__)
 
 
 @therapist_bp.get("/therapist")
 def therapist_page():
-    therapist_name = None
-    room_number = None
-    therapist_id = session.get("therapist_id")
-    if therapist_id:
-        t = Therapist.query.get(therapist_id)
-        if t:
-            therapist_name = t.name
-            room_number = t.room_number
-    else:
+    # Use hybrid authentication (token-first, session fallback)
+    therapist, auth_method = get_current_therapist()
+    
+    if not therapist:
         return redirect(url_for("auth.login_therapist_form"))
-
-    return render_template("therapist.html", therapist_name=therapist_name, room_number=room_number)
+    
+    return render_template("therapist.html", 
+                         therapist_name=therapist.name, 
+                         room_number=therapist.room_number)
 
 
 @therapist_bp.get("/therapist/service-management")
 def service_management_page():
-    therapist_name = None
-    room_number = None
-    therapist_id = session.get("therapist_id")
-    if therapist_id:
-        t = Therapist.query.get(therapist_id)
-        if t:
-            therapist_name = t.name
-            room_number = t.room_number
-    else:
+    # Use hybrid authentication (token-first, session fallback)
+    therapist, auth_method = get_current_therapist()
+    
+    if not therapist:
         return redirect(url_for("auth.login_therapist_form"))
-
-    return render_template("service_management.html", therapist_name=therapist_name, room_number=room_number)
+    
+    return render_template("service_management.html", 
+                         therapist_name=therapist.name, 
+                         room_number=therapist.room_number)

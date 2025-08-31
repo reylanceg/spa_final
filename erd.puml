@@ -1,0 +1,122 @@
+@startuml SPA Management System ERD
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) #x#
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+enum TransactionStatus {
+    selecting
+    pending_therapist
+    therapist_confirmed
+    in_service
+    finished
+    awaiting_payment
+    paying
+    paid
+}
+
+table(TransactionCounter) {
+    primary_key(id): INT
+    next_number: INT
+}
+
+table(ServiceCategory) {
+    primary_key(id): INT
+    category_name: VARCHAR(100)
+}
+
+table(Service) {
+    primary_key(id): INT
+    foreign_key(category_id): INT
+    service_name: VARCHAR(100)
+    description: VARCHAR(255)
+}
+
+table(ServiceClassification) {
+    primary_key(id): INT
+    foreign_key(service_id): INT
+    classification_name: VARCHAR(100)
+    price: FLOAT
+    duration_minutes: INT
+}
+
+table(Therapist) {
+    primary_key(id): INT
+    username: VARCHAR(80)
+    password_hash: VARCHAR(255)
+    name: VARCHAR(120)
+    room_number: VARCHAR(20)
+    active: BOOLEAN
+    auth_token: VARCHAR(255)
+    token_expires_at: DATETIME
+}
+
+table(Cashier) {
+    primary_key(id): INT
+    username: VARCHAR(80)
+    password_hash: VARCHAR(255)
+    name: VARCHAR(120)
+    counter_number: VARCHAR(20)
+    active: BOOLEAN
+    auth_token: VARCHAR(255)
+    token_expires_at: DATETIME
+}
+
+table(Transaction) {
+    primary_key(id): INT
+    code: VARCHAR(4)
+    customer_name: VARCHAR(120)
+    status: TransactionStatus
+    foreign_key(therapist_id): INT
+    room_number: VARCHAR(20)
+    foreign_key(assigned_cashier_id): INT
+    total_amount: FLOAT
+    total_duration_minutes: INT
+    created_at: DATETIME
+    selection_confirmed_at: DATETIME
+    therapist_confirmed_at: DATETIME
+    service_start_at: DATETIME
+    service_finish_at: DATETIME
+    cashier_claimed_at: DATETIME
+    paid_at: DATETIME
+}
+
+table(TransactionItem) {
+    primary_key(id): INT
+    foreign_key(transaction_id): INT
+    foreign_key(service_id): INT
+    foreign_key(service_classification_id): INT
+    price: FLOAT
+    duration_minutes: INT
+}
+
+table(Payment) {
+    primary_key(id): INT
+    foreign_key(transaction_id): INT
+    foreign_key(cashier_id): INT
+    amount_due: FLOAT
+    amount_paid: FLOAT
+    change_amount: FLOAT
+    method: VARCHAR(40)
+    created_at: DATETIME
+}
+
+ServiceCategory "1" -- "*" Service
+Service "1" -- "*" ServiceClassification
+Service "1" -- "*" TransactionItem
+ServiceClassification "1" -- "*" TransactionItem
+Therapist "1" -- "*" Transaction
+Cashier "1" -- "*" Payment
+Transaction "1" -- "*" TransactionItem
+Transaction "1" -- "0..1" Payment
+Cashier "1" -- "*" Transaction
+
+Transaction -- TransactionStatus
+
+@enduml

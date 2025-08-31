@@ -1,36 +1,36 @@
 {% extends 'base.html' %} {% block content %}
-<h2>Monitor</h2>
+<!-- <h2>Monitor</h2> -->
 <audio
   id="notifySound"
-  src="app/static/notification_sound.mp3"
+  src="/static/notification_sound.mp3"
   preload="auto"
 ></audio>
 
-<div class="monitor-grid">
-  <section>
-    <h3>Waiting for Therapist</h3>
-    <ul id="waiting_therapist"></ul>
-  </section>
-  <section>
-    <h3>Confirmed / To Room</h3>
-    <ul id="confirmed"></ul>
-  </section>
-  <section>
-    <h3>In Service</h3>
-    <ul id="in_service"></ul>
-  </section>
-  <section>
-    <h3>Finished / Waiting Payment</h3>
-    <ul id="finished"></ul>
-  </section>
-  <section>
-    <h3>Go To Cashier</h3>
-    <ul id="payment_assigned"></ul>
-  </section>
-  <section>
-    <h3>Paid / Completed</h3>
-    <ul id="paid"></ul>
-  </section>
+<div class="monitor-container">
+  <!-- WAITING: Shows transactions after customer confirms services, waiting for therapist -->
+  <div class="waiting-container">
+    <div class="monitor-heading">
+      <p>WAITING</p>
+    </div>
+    <div id="waiting_therapist"></div>
+  </div>
+  
+  <!-- SERVING: Shows transactions after therapist confirms, during service -->
+  <div class="serving-container">
+    <div class="monitor-heading">
+      <p>SERVING</p>
+    </div>
+    <div id="serving"></div>
+  </div>
+  
+  <!-- COUNTER: Shows transactions after cashier confirms payment assignment -->
+  <div class="waiting-container">
+    <div class="monitor-heading">
+      <p>COUNTER</p>
+    </div>
+    <div id="payment_assigned"></div>
+  </div>
+  
+  <script src="/static/js/monitor.js"></script>
 </div>
-<script src="/static/js/monitor.js"></script>
 {% endblock %}

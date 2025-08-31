@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+<div class="cashier-payment-page">
+  <!-- Compact Header -->
+  <div class="cashier-payment-header">
+    <div class="header-left">
+      <a href="/cashier" class="back-to-cashier-link">
+        <button class="back-to-cashier-button">← Back to Queue</button>
+      </a>
+    </div>
+    <div class="header-center">
+      <!-- <h2 class="page-title">Payment Terminal</h2> -->
+    </div>
+    <div class="header-right">
+      <div class="counter-badge-compact">
+        <span class="counter-label">Counter</span>
+        <span class="counter-number" id="counter_display">{{ counter_number or '1' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Payment Interface -->
+  <div class="cashier-payment-container">
+    <div class="payment-interface-card">
+      <div id="current_payment_txn">
+        <!-- Default content when no transaction -->
+        <div class="no-active-payment">
+          <div class="payment-status-display">
+            <div class="status-icon">💳</div>
+            <h3>Payment Terminal Ready</h3>
+            <p>No active transaction</p>
+          </div>
+          <div class="quick-actions">
+            <a href="/cashier" class="action-btn primary">Return to Queue</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hidden inputs for functionality -->
+  <input type="hidden" id="cashier_name" value="{{ cashier_name or '' }}" />
+  <input type="hidden" id="counter_number" value="{{ counter_number or '' }}" />
+</div>
+<script src="/static/js/payment_management.js"></script>
+{% endblock %}

@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 from ..extensions import db
 from ..models import Therapist, Cashier
+from ..utils.auth_helpers import create_token_for_user, invalidate_token, get_current_therapist, get_current_cashier
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -24,12 +25,26 @@ def login_therapist():
         t.room_number = room_number
         db.session.commit()
 
+    # Generate auth token
+    token = create_token_for_user(t)
+    
+    # Still set session for backward compatibility
     session["therapist_id"] = t.id
-    return redirect(url_for("therapist.therapist_page"))
+    
+    # Return a page that will store the token and redirect
+    return render_template("login_success_therapist.html", 
+                         token=token, 
+                         redirect_url=url_for("therapist.therapist_page"))
 
 
 @auth_bp.get("/logout/therapist")
 def logout_therapist():
+    # Get current therapist and invalidate their token
+    therapist, auth_method = get_current_therapist()
+    if therapist and auth_method == 'token':
+        invalidate_token(therapist)
+    
+    # Clear session for backward compatibility
     session.pop("therapist_id", None)
     return redirect(url_for("auth.login_therapist_form"))
 
@@ -53,12 +68,26 @@ def login_cashier():
         c.counter_number = counter_number
         db.session.commit()
 
+    # Generate auth token
+    token = create_token_for_user(c)
+    
+    # Still set session for backward compatibility
     session["cashier_id"] = c.id
-    return redirect(url_for("cashier.cashier_page"))
+    
+    # Return a page that will store the token and redirect
+    return render_template("login_success_cashier.html", 
+                         token=token, 
+                         redirect_url=url_for("cashier.cashier_page"))
 
 
 @auth_bp.get("/logout/cashier")
 def logout_cashier():
+    # Get current cashier and invalidate their token
+    cashier, auth_method = get_current_cashier()
+    if cashier and auth_method == 'token':
+        invalidate_token(cashier)
+    
+    # Clear session for backward compatibility
     session.pop("cashier_id", None)
     return redirect(url_for("auth.login_cashier_form"))
 
