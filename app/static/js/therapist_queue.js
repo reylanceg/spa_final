@@ -1,21 +1,21 @@
 // Get auth token from sessionStorage
-const authToken = sessionStorage.getItem('therapist_auth_token');
+const authToken = sessionStorage.getItem("therapist_auth_token");
 
 // Initialize socket.io with auth token
 const socket = io({
   auth: {
-    token: authToken
+    token: authToken,
   },
   query: {
-    auth_token: authToken
-  }
+    auth_token: authToken,
+  },
 });
 
 // Add token to fetch requests
 function fetchWithAuth(url, options = {}) {
   const headers = {
     ...options.headers,
-    'X-Auth-Token': authToken
+    "X-Auth-Token": authToken,
   };
   return fetch(url, { ...options, headers });
 }
@@ -39,7 +39,9 @@ function renderQueue(list) {
                       <div class="service-item">
                         <div class="service-name">${service.service_name.toUpperCase()}</div>
                         <div class="service-details">
-                          <div class="service-duration">${service.duration_minutes * 60} SECONDS</div>
+                          <div class="service-duration">${
+                            service.duration_minutes
+                          } SECONDS</div>
                           <div class="service-area">${service.classification_name.toUpperCase()}</div>
                         </div>
                       </div>
@@ -98,14 +100,14 @@ function updateConfirmButtonState(hasActiveTransaction) {
 
 function bindControls() {
   socket.emit("therapist_subscribe");
-  
+
   // Check for active transaction on load
   checkActiveTransaction();
-  
+
   document.getElementById("confirm_next").addEventListener("click", () => {
     const confirmButton = document.getElementById("confirm_next");
     if (confirmButton.disabled) return;
-    
+
     const therapist_name =
       document.getElementById("therapist_name").value || "Therapist 1";
     const room_number = document.getElementById("room_number").value || "101";
@@ -116,9 +118,7 @@ function bindControls() {
 socket.on("therapist_confirm_result", (res) => {
   if (res.ok) {
     // Redirect to service management page
-    const url = new URL('/therapist/service-management', window.location.origin);
-    if (authToken) url.searchParams.set('auth_token', authToken);
-    window.location.href = url.toString();
+    window.location.href = "/therapist/service-management";
   } else {
     alert(res.error || "No pending customers");
   }

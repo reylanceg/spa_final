@@ -50,7 +50,8 @@ function startTimer(tx) {
   const startMs = tx.service_start_at
     ? Date.parse(tx.service_start_at)
     : Date.now();
-  const totalMs = tx.total_duration_minutes * 1000;
+  // const totalMs = tx.total_duration_minutes * 60 * 1000; // To change back to minutes
+  const totalMs = tx.total_duration_minutes * 1000; // Change the service time from minutes to seconds
 
   function tick() {
     const now = Date.now();
@@ -214,10 +215,32 @@ function renderCurrent(tx) {
     .then((list) => {
       const sel = document.getElementById("add_service_select");
       sel.innerHTML = "";
-      list.forEach((s) => {
+
+      // Sort services by category first, then by name
+      const sortedList = list.sort((a, b) => {
+        if (a.category !== b.category) {
+          return a.category.localeCompare(b.category);
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      // Group services by category and add headers
+      let currentCategory = null;
+      sortedList.forEach((s) => {
+        // Add category header if this is a new category
+        if (s.category !== currentCategory) {
+          const headerOpt = document.createElement("option");
+          headerOpt.disabled = true;
+          headerOpt.textContent = `── ${s.category.toUpperCase()} ──`;
+          headerOpt.style.fontWeight = "bold";
+          headerOpt.style.backgroundColor = "#f0f0f0";
+          sel.appendChild(headerOpt);
+          currentCategory = s.category;
+        }
+
         const opt = document.createElement("option");
         opt.value = s.id;
-        opt.textContent = `${s.name} - ₱${s.price}`;
+        opt.textContent = `${s.name} - ${s.duration_minutes}min - ₱${s.price}`;
         sel.appendChild(opt);
       });
     });
@@ -301,9 +324,7 @@ socket.on("therapist_finish_result", (res) => {
   if (res && res.ok) {
     alert("Service has been completed. Redirecting back to queue...");
     // Redirect back to therapist queue page
-    const url = new URL("/therapist", window.location.origin);
-    if (authToken) url.searchParams.set("auth_token", authToken);
-    window.location.href = url.toString();
+    window.location.href = "/therapist";
   }
 });
 

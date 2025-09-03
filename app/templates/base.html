@@ -11,7 +11,7 @@
   </head>
   <body>
     <script>
-      // Ensure auth_token is consistently present in URL for SSR token-first auth
+      // Ensure sessionStorage token is available for authentication
       (function () {
         try {
           var path = location.pathname;
@@ -22,7 +22,7 @@
             path === "/therapist/service-management"
           ) {
             tokenKey = "therapist_auth_token";
-          } else if (path === "/cashier") {
+          } else if (path === "/cashier" || path === "/cashier/payment-management") {
             tokenKey = "cashier_auth_token";
           }
           if (!tokenKey) return;
@@ -34,20 +34,14 @@
             storageToken = sessionStorage.getItem(tokenKey);
           } catch (e) {}
 
-          // If URL already carries token, keep sessionStorage in sync and proceed
+          // If URL has token, store it in sessionStorage and clean the URL
           if (urlToken) {
-            if (storageToken !== urlToken) {
-              try {
-                sessionStorage.setItem(tokenKey, urlToken);
-              } catch (e) {}
-            }
-            return;
-          }
-
-          // If URL is missing token but sessionStorage has it, reload with token in URL
-          if (storageToken) {
-            url.searchParams.set("auth_token", storageToken);
-            location.replace(url.toString());
+            try {
+              sessionStorage.setItem(tokenKey, urlToken);
+              // Remove token from URL for security
+              url.searchParams.delete("auth_token");
+              history.replaceState(null, "", url.toString());
+            } catch (e) {}
           }
         } catch (e) {
           // no-op on errors

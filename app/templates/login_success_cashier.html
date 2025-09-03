@@ -9,7 +9,9 @@
         sessionStorage.setItem('cashier_auth_token', '{{ token }}');
         
         // Redirect to the cashier page
-        window.location.href = '{{ redirect_url }}?auth_token={{ token }}';
+        // window.location.href = '{{ redirect_url }}?auth_token={{ token }}';
+
+        window.location.href = '{{ redirect_url }}';
     </script>
 </head>
 <body>
