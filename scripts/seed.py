@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.extensions import db
-from app.models import ServiceCategory, Service, ServiceClassification, Therapist, Cashier
+from app.models import ServiceCategory, Service, ServiceClassification, Therapist, Cashier, Room
 
 def seed_database():
     app = create_app()
@@ -157,7 +157,9 @@ def seed_database():
         # Create sample cashiers
         cashiers_data = [
             {"username": "cashier1", "name": "Lisa Anderson", "counter_number": "C1"},
-            {"username": "cashier2", "name": "Robert Taylor", "counter_number": "C2"}
+            {"username": "cashier2", "name": "Robert Taylor", "counter_number": "C2"},
+             {"username": "cashier3", "name": "Anna Taylor", "counter_number": "C3"},
+              {"username": "cashier4", "name": "John Doe", "counter_number": "C4"}
         ]
         
         for cashier_data in cashiers_data:
@@ -168,12 +170,28 @@ def seed_database():
         db.session.commit()
         print(f"Created {len(cashiers_data)} cashiers")
         
+        # Create sample rooms
+        rooms_data = [
+            {"room_number": "101", "status": "available"},
+            {"room_number": "102", "status": "available"},
+            {"room_number": "103", "status": "available"},
+            {"room_number": "104", "status": "available"}
+        ]
+        
+        for room_data in rooms_data:
+            room = Room(**room_data)
+            db.session.add(room)
+        
+        db.session.commit()
+        print(f"Created {len(rooms_data)} rooms")
+        
         print("Database seeding completed successfully!")
         print("\nSample data created:")
-        print("- 4 service categories")
+        print("- 2 service categories")
         print("- 8 services with multiple classifications each")
         print("- 4 therapists (username: therapist1-4, password: password123)")
-        print("- 2 cashiers (username: cashier1-2, password: password123)")
+        print("- 4 cashiers (username: cashier1-4, password: password123)")
+        print("- 4 rooms (101-104, all available)")
 
 if __name__ == "__main__":
     seed_database()

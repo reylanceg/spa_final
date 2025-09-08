@@ -87,14 +87,24 @@ function checkActiveTransaction() {
 
 function updateConfirmButtonState(hasActiveTransaction) {
   const confirmButton = document.getElementById("confirm_next");
+  const toggleButton = document.getElementById("toggle_room_status");
+  
   if (hasActiveTransaction) {
     confirmButton.disabled = true;
     confirmButton.textContent = "Service in Progress";
     confirmButton.classList.add("disabled-state");
+    
+    // Disable the on-break toggle button when therapist has active transaction
+    toggleButton.disabled = true;
+    toggleButton.classList.add("disabled-state");
   } else {
     confirmButton.disabled = false;
     confirmButton.textContent = "Confirm FIFO";
     confirmButton.classList.remove("disabled-state");
+    
+    // Re-enable the on-break toggle button when no active transaction
+    toggleButton.disabled = false;
+    toggleButton.classList.remove("disabled-state");
   }
 }
 
@@ -112,6 +122,59 @@ function bindControls() {
       document.getElementById("therapist_name").value || "Therapist 1";
     const room_number = document.getElementById("room_number").value || "101";
     socket.emit("therapist_confirm_next", { therapist_name, room_number });
+  });
+
+  // Add toggle room status functionality
+  document.getElementById("toggle_room_status").addEventListener("click", () => {
+    const toggleButton = document.getElementById("toggle_room_status");
+    const currentStatus = toggleButton.getAttribute("data-status");
+    
+    // Don't allow toggle if button is disabled due to active transaction
+    if (toggleButton.disabled) {
+      return;
+    }
+    
+    // Disable button during request
+    toggleButton.disabled = true;
+    toggleButton.textContent = "Updating...";
+    
+    fetchWithAuth("/therapist/toggle-room-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update button state
+        toggleButton.setAttribute("data-status", data.new_status);
+        toggleButton.textContent = data.button_text;
+        
+        // Update button styling based on status
+        if (data.new_status === "preparing") {
+          toggleButton.classList.add("preparing-status");
+          toggleButton.classList.remove("available-status");
+        } else {
+          toggleButton.classList.add("available-status");
+          toggleButton.classList.remove("preparing-status");
+        }
+      } else {
+        alert("Error updating room status: " + (data.error || "Unknown error"));
+        // Reset button text on error
+        toggleButton.textContent = currentStatus === "available" ? "On Break" : "Available";
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("Error updating room status");
+      // Reset button text on error
+      toggleButton.textContent = currentStatus === "available" ? "On Break" : "Available";
+    })
+    .finally(() => {
+      // Only re-enable if there's no active transaction
+      checkActiveTransaction();
+    });
   });
 }
 

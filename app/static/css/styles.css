@@ -158,6 +158,247 @@ header {
   color: #007bff;
 }
 
+/* Monitor page service timer styles */
+.service-timer {
+  /* font-family: "Courier New", monospace; */
+  font-size: 30px;
+  font-weight: bold;
+  /* color: #28a745; */
+  /* background-color: rgba(40, 167, 69, 0.1); */
+  padding: 4px 8px;
+  border-radius: 4px;
+  /* border: 1px solid #28a745; */
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* Occupied status flag styles */
+.occupied-flag {
+  font-size: 32px;
+  font-weight: bold;
+  color: #dc3545;
+  padding: 0;
+  margin: 0;
+  margin-left: 20px;
+  text-align: left;
+}
+
+/* In-service flag styles */
+.in-service-flag {
+  font-size: 32px;
+  font-weight: bold;
+  color: #28a745;
+  padding: 0;
+  margin: 0;
+  margin-left: 20px;
+  text-align: left;
+}
+
+/* Room Status Styles */
+.room-status-container {
+  margin: 20px 0;
+  padding: 15px;
+  /* background-color: rgba(0, 0, 0, 0.8); */
+  border-radius: 8px;
+  /* border: 1px solid #444; */
+}
+
+.room-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.room-card {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  color: white;
+}
+
+.room-card:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.room-status-indicator {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.room-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.room-number {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.room-status-text {
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ccc;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.room-transaction {
+  font-size: 11px;
+  color: #aaa;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.room-customer {
+  font-size: 10px;
+  color: #888;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Room status specific colors for indicators */
+.room-available .room-status-indicator {
+  background-color: #28a745; /* Green */
+}
+
+.room-occupied .room-status-indicator {
+  background-color: #dc3545; /* Red */
+}
+
+.room-preparing .room-status-indicator {
+  background-color: #ffc107; /* Yellow */
+}
+
+/* Monitor page layout adjustments - removed old grid layout */
+
+.monitor-heading {
+  background-color: #902726;
+  color: white;
+  padding: 10px 15px;
+  margin: -15px -15px 15px -15px;
+  text-align: center;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.monitor-heading p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 25px;
+  letter-spacing: 1px;
+}
+
+/* Cashier Counter Styles */
+.cashier-counters-container {
+  /* background-color: rgba(0, 0, 0, 0.8); */
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 0;
+}
+
+/* .cashier-grid {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+} */
+
+.cashier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.cashier-card {
+  background-color: #902726;
+  color: white;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+  /* width: 120px; */
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 1px solid #A0522D;
+}
+
+.cashier-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  /* background-color: #A0522D; */
+}
+
+.cashier-name {
+  font-size: 22px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.cashier-counter {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1.1;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.cashier-card.has-transactions {
+  /* background-color: #CD853F; */
+  background-color: #902726;
+  /* border-color: #DAA520; */
+}
+
+/* .cashier-card.has-transactions:hover {
+  background-color: #DAA520;
+} */
+
+/* Toggle Room Status Button Styles */
+.toggle-status-button {
+  background-color: #28a745 !important;
+  transition: all 0.3s ease;
+}
+
+.toggle-status-button.preparing-status {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.toggle-status-button.available-status {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.toggle-status-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .service-link a {
   text-decoration: none;
   color: #bcbb89;
@@ -3105,23 +3346,46 @@ a.logout:hover {
 /* Monitor page start */
 
 .monitor-container {
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(rgba(53, 30, 30, 0.5), rgba(35, 24, 24, 0.5)),
     url(/static/img/about_page_background.jpg) no-repeat center/cover;
+  background-attachment: fixed;
   color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.monitor-main-details-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 20px;
   text-align: center;
+  flex: 1;
+  margin-bottom: 20px;
 }
 
 .waiting-container,
-.serving-container {
-  /* border-left: 2px solid #fff; */
+.serving-container
+ {
+  /* background-color: rgba(0, 0, 0, 0.6); */
+  /* border-radius: 8px; */
+  padding: 15px;
   display: flex;
   align-items: center;
   flex-direction: column;
-  margin-top: 15px;
+  margin-top: 0;
+  min-height: 200px;
+}
+
+.room-status-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  min-height: 200px;
+  padding: 15px;
+  margin-top: 0;
+
 }
 
 .serving-container {
@@ -3129,20 +3393,7 @@ a.logout:hover {
   border-right: 2px solid #fff;
 }
 
-.monitor-heading {
-  background-color: #902726;
-  font-size: 32px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-.monitor-grid .monitor-heading {
-  background-color: #902726;
-  padding: 10px;
-  font-size: 40px;
-}
+/* Monitor page end */
 
 .monitor-grid h3 {
   margin-bottom: 10px;
@@ -3162,16 +3413,154 @@ a.logout:hover {
 
 .monitor-serving-container {
   font-size: 32px;
-  padding: 10px 50px;
+  /* padding: 10px 20px; */
   font-weight: bold;
   margin-block: 10px;
 }
 
 .room-in-service {
   font-size: 32px;
-  padding: 10px 50px;
+  /* padding: 10px 10px; */
   font-weight: bold;
   margin-block: 10px;
+}
+
+/* Responsive Design for Monitor Page - Attending To Section */
+
+/* Tablet styles (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+  .monitor-serving-container {
+    font-size: 28px;
+    margin-block: 8px;
+  }
+  
+  .room-in-service {
+    font-size: 28px;
+    margin-block: 8px;
+  }
+  
+  .occupied-flag {
+    font-size: 28px;
+    margin-left: 15px;
+  }
+  
+  .in-service-flag {
+    font-size: 28px;
+    margin-left: 15px;
+  }
+  
+  .service-timer {
+    font-size: 26px;
+  }
+}
+
+/* Mobile styles (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .monitor-serving-container {
+    font-size: 24px;
+    margin-block: 6px;
+  }
+  
+  .room-in-service {
+    font-size: 24px;
+    margin-block: 6px;
+  }
+  
+  .occupied-flag {
+    font-size: 24px;
+    margin-left: 12px;
+  }
+  
+  .in-service-flag {
+    font-size: 24px;
+    margin-left: 12px;
+  }
+  
+  .service-timer {
+    font-size: 22px;
+    margin-top: 3px;
+  }
+  
+  .monitor-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+}
+
+/* Small mobile styles (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .monitor-serving-container {
+    font-size: 20px;
+    margin-block: 5px;
+  }
+  
+  .room-in-service {
+    font-size: 20px;
+    margin-block: 5px;
+  }
+  
+  .occupied-flag {
+    font-size: 20px;
+    margin-left: 10px;
+  }
+  
+  .in-service-flag {
+    font-size: 20px;
+    margin-left: 10px;
+  }
+  
+  .service-timer {
+    font-size: 18px;
+    margin-top: 2px;
+  }
+  
+  .monitor-container {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .monitor-heading p {
+    font-size: 14px;
+  }
+}
+
+/* Extra small mobile styles (max-width: 320px) */
+@media screen and (max-width: 320px) {
+  .monitor-serving-container {
+    font-size: 18px;
+    margin-block: 4px;
+  }
+  
+  .room-in-service {
+    font-size: 18px;
+    margin-block: 4px;
+  }
+  
+  .occupied-flag {
+    font-size: 18px;
+    margin-left: 8px;
+  }
+  
+  .in-service-flag {
+    font-size: 18px;
+    margin-left: 8px;
+  }
+  
+  .service-timer {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+  
+  .monitor-container {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .monitor-heading p {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
 }
 
 .room-in-service .in-service-flag {

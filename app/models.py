@@ -187,6 +187,18 @@ class TransactionItem(db.Model):
     service_classification: Mapped["ServiceClassification"] = relationship("ServiceClassification")
 
 
+class Room(db.Model):
+    __tablename__ = "rooms"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    room_number: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default="available", nullable=False)  # available, occupied, preparing
+    current_transaction_id: Mapped[Optional[int]] = mapped_column(ForeignKey("transactions.id"), nullable=True)
+    current_customer_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    
+    current_transaction: Mapped[Optional[Transaction]] = relationship("Transaction")
+
+
 class Payment(db.Model):
     __tablename__ = "payments"
 

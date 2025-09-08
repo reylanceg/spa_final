@@ -5,6 +5,54 @@ socket.emit("monitor_subscribe");
 const soundEl = document.getElementById("notifySound");
 let soundReady = false;
 
+// Timer management for in-service transactions
+let activeTimers = new Map(); // Map of transaction_id -> interval_id
+
+function formatTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function calculateRemainingTime(startTime, totalDurationMinutes) {
+  const start = new Date(startTime);
+  const now = new Date();
+  const elapsedMs = now - start;
+  // Convert total duration from minutes to milliseconds (matching service_management logic)
+  const totalMs = totalDurationMinutes * 1000; // Change from minutes to seconds like service_management
+  const remainingMs = Math.max(0, totalMs - elapsedMs);
+  return Math.ceil(remainingMs / 1000); // Return remaining seconds
+}
+
+function startTimer(transactionId, startTime, totalDurationMinutes) {
+  // Clear existing timer if any
+  if (activeTimers.has(transactionId)) {
+    clearInterval(activeTimers.get(transactionId));
+  }
+  
+  const intervalId = setInterval(() => {
+    const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+    const timerElement = document.getElementById(`timer-${transactionId}`);
+    if (timerElement) {
+      timerElement.textContent = formatTime(remainingSeconds);
+      // If timer reaches 0, could add visual indication like service_management
+      if (remainingSeconds <= 0) {
+        timerElement.style.color = '#ff4444'; // Red color when time is up
+      }
+    }
+  }, 1000);
+  
+  activeTimers.set(transactionId, intervalId);
+}
+
+function stopTimer(transactionId) {
+  if (activeTimers.has(transactionId)) {
+    clearInterval(activeTimers.get(transactionId));
+    activeTimers.delete(transactionId);
+  }
+}
+
 function ensureSoundReady() {
   if (!soundEl) {
     console.error("Sound element not found during initialization");
@@ -141,6 +189,12 @@ function refreshLists() {
       const serving = document.getElementById("serving");
       const pa = document.getElementById("payment_assigned");
 
+      // Stop all existing timers before refreshing
+      activeTimers.forEach((intervalId, transactionId) => {
+        clearInterval(intervalId);
+      });
+      activeTimers.clear();
+
       // WAITING: Shows transactions after customer confirms services (pending_therapist status)
       w.innerHTML = "";
       (data.waiting || []).forEach((t) =>
@@ -152,9 +206,16 @@ function refreshLists() {
       serving.innerHTML = "";
       (data.serving || []).forEach((t) => {
         if (t.status === 'therapist_confirmed') {
-          serving.appendChild(div(`<p>${t.code}</p> <p>Room ${t.room_number}</p>`,"monitor-serving-container"));
+          const occupiedHtml = `<p>${t.code}</p><div style="display:flex"> <p>Room ${t.room_number}</p> <p class="occupied-flag">OCCUPIED</p></div>`;
+          serving.appendChild(div(occupiedHtml, "monitor-serving-container"));
         } else if (t.status === 'in_service') {
-          serving.appendChild(div(`<p>${t.code}</p> <p>Room ${t.room_number}</p> <p class="in-service-flag">In Service</p>`, "room-in-service"));
+          const timerHtml = `<p>${t.code}</p><div style="display: flex"> <p>Room ${t.room_number}</p> <p class="in-service-flag">IN SERVICE</p></div> <p class="service-timer" id="timer-${t.id}">00:00:00</p>`;
+          serving.appendChild(div(timerHtml, "room-in-service"));
+          
+          // Start timer for this transaction
+          if (t.service_start_at && t.total_duration_minutes) {
+            startTimer(t.id, t.service_start_at, t.total_duration_minutes);
+          }
         }
       });
 
@@ -166,41 +227,141 @@ function refreshLists() {
     });
 }
 
+function refreshRoomStatus() {
+  fetch("/room_status")
+    .then((r) => r.json())
+    .then((data) => {
+      const roomStatusContainer = document.getElementById("room_status");
+      roomStatusContainer.innerHTML = "";
+      
+      (data.rooms || []).forEach((room) => {
+        const statusClass = `room-${room.status.toLowerCase()}`;
+        
+        // Create the room info content with proper status display
+        let statusDisplay = room.status;
+        if (room.status === 'preparing') {
+          statusDisplay = 'ON BREAK';
+        } else if (room.status === 'available') {
+          statusDisplay = 'AVAILABLE';
+        } else if (room.status === 'occupied') {
+          statusDisplay = 'OCCUPIED';
+        }
+        
+        let roomInfoContent = `
+          <div class="room-number">ROOM ${room.room_number}</div>
+          <div class="room-status-text">${statusDisplay}</div>
+        `;
+        
+        // Add transaction code if available
+        // if (room.transaction_code) {
+        //   roomInfoContent += `<div class="room-transaction">${room.transaction_code}</div>`;
+        // }
+        
+        // Add customer name if available
+        if (room.customer_name) {
+          roomInfoContent += `<div class="room-customer">${room.customer_name}</div>`;
+        }
+        
+        // Create the complete room card with status indicator
+        const roomContent = `
+          <div class="room-status-indicator"></div>
+          <div class="room-info">
+            ${roomInfoContent}
+          </div>
+        `;
+        
+        roomStatusContainer.appendChild(div(roomContent, `room-card ${statusClass}`));
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching room status:", error);
+    });
+}
+
+function refreshCashierCounters() {
+  fetch("/cashier_status")
+    .then((r) => r.json())
+    .then((data) => {
+      const cashierContainer = document.getElementById("cashier_counters");
+      cashierContainer.innerHTML = "";
+      
+      (data.cashiers || []).forEach((cashier) => {
+        const hasTransactions = cashier.transaction_count > 0;
+        const statusClass = hasTransactions ? 'has-transactions' : '';
+        
+        // Get the transaction codes for this cashier
+        let displayText = '';
+        if (cashier.transactions && cashier.transactions.length > 0) {
+          // Show the first transaction code, or multiple if they fit
+          const codes = cashier.transactions.map(tx => tx.code);
+          if (codes.length === 1) {
+            displayText = codes[0];
+          } else {
+            // For multiple transactions, show the first one with a count indicator
+            displayText = `${codes[0]} +${codes.length - 1}`;
+          }
+        }
+        
+        const cashierContent = `
+          <div class="cashier-name">CASHIER ${cashier.counter_number}</div>
+          <div class="cashier-counter">${displayText}</div>
+        `;
+        
+        cashierContainer.appendChild(div(cashierContent, `cashier-card ${statusClass}`));
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching cashier status:", error);
+    });
+}
+
 // Play sound on specific events
 socket.on("monitor_customer_confirmed", (data) => {
   console.log("Customer confirmed event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 socket.on("monitor_therapist_confirmed", (data) => {
   console.log("Therapist confirmed event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 socket.on("monitor_service_started", (data) => {
   console.log("Service started event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 socket.on("monitor_service_finished", (data) => {
   console.log("Service finished event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 socket.on("monitor_payment_counter", (data) => {
   console.log("Payment counter event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 socket.on("monitor_payment_completed", (data) => {
   console.log("Payment completed event:", data);
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 // Also play sound for general monitor updates to catch any missed events
@@ -208,6 +369,8 @@ socket.on("monitor_updated", () => {
   console.log("Monitor updated event");
   playSound();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 // Test if sound file is accessible
@@ -234,6 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureSoundReady();
   unlockOnFirstGesture();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 });
 
 // Fallback initialization if DOMContentLoaded already fired
@@ -245,4 +410,6 @@ if (document.readyState === 'loading') {
   ensureSoundReady();
   unlockOnFirstGesture();
   refreshLists();
+  refreshRoomStatus();
+  refreshCashierCounters();
 }
