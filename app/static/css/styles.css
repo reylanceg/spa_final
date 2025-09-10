@@ -12,6 +12,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("/static/fonts/BebasNeue-Regular.ttf");
+  font-weight: 300;
+  font-style: normal;
+}
+
 /* Customer Header */
 
 header {
@@ -161,7 +168,7 @@ header {
 /* Monitor page service timer styles */
 .service-timer {
   /* font-family: "Courier New", monospace; */
-  font-size: 30px;
+  font-size: 45px;
   font-weight: bold;
   /* color: #28a745; */
   /* background-color: rgba(40, 167, 69, 0.1); */
@@ -174,7 +181,7 @@ header {
 
 /* Occupied status flag styles */
 .occupied-flag {
-  font-size: 32px;
+  font-size: 45px;
   font-weight: bold;
   color: #dc3545;
   padding: 0;
@@ -185,7 +192,7 @@ header {
 
 /* In-service flag styles */
 .in-service-flag {
-  font-size: 32px;
+  font-size: 45px;
   font-weight: bold;
   color: #28a745;
   padding: 0;
@@ -230,6 +237,8 @@ header {
   border-radius: 50%;
   margin-right: 12px;
   flex-shrink: 0;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
 .room-info {
@@ -240,7 +249,7 @@ header {
 }
 
 .room-number {
-  font-size: 20px;
+  font-size: 35px;
   font-weight: bold;
   color: white;
   margin: 0;
@@ -248,11 +257,10 @@ header {
 }
 
 .room-status-text {
-  font-size: 20px;
+  font-size: 35px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #ccc;
   margin: 0;
   line-height: 1.2;
 }
@@ -272,17 +280,165 @@ header {
   line-height: 1.2;
 }
 
-/* Room status specific colors for indicators */
+.room-timer {
+  /* font-family: "Courier New", monospace; */
+  font-size: 35px;
+  font-weight: bold;
+  margin-left: 4px;
+  /* color: #28a745; */
+  /* background-color: rgba(40, 167, 69, 0.1); */
+  /* padding: 4px 8px; */
+  /* border-radius: 4px; */
+  /* border: 1px solid #28a745; */
+  /* margin-top: 4px; */
+  /* text-align: center; */
+  line-height: 1.2;
+}
+
+/* Room status specific colors for indicators with neon effects */
 .room-available .room-status-indicator {
-  background-color: #28a745; /* Green */
+  background-color: #00ff41;
+  box-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41,
+    0 0 30px #00ff41,
+    0 0 40px #00ff41,
+    inset 0 0 10px rgba(0, 255, 65, 0.3);
+  border: 2px solid #00ff41;
+  /* animation: neon-green-pulse 2s infinite alternate; */
 }
 
 .room-occupied .room-status-indicator {
-  background-color: #dc3545; /* Red */
+  background-color: #ff0040;
+  box-shadow: 
+    0 0 10px #ff0040,
+    0 0 20px #ff0040,
+    0 0 30px #ff0040,
+    0 0 40px #ff0040,
+    inset 0 0 10px rgba(255, 0, 64, 0.3);
+  border: 2px solid #ff0040;
+  /* animation: neon-red-pulse 2s infinite alternate; */
 }
 
 .room-preparing .room-status-indicator {
-  background-color: #ffc107; /* Yellow */
+  background-color: #ffff00;
+  box-shadow: 
+    0 0 10px #ffff00,
+    0 0 20px #ffff00,
+    0 0 30px #ffff00,
+    0 0 40px #ffff00,
+    inset 0 0 10px rgba(255, 255, 0, 0.3);
+  border: 2px solid #ffff00;
+  /* animation: neon-yellow-pulse 2s infinite alternate; */
+}
+
+.room-on_going_service .room-status-indicator {
+  background-color: #ff0040;
+  box-shadow: 
+    0 0 10px #ff0040,
+    0 0 20px #ff0040,
+    0 0 30px #ff0040,
+    0 0 40px #ff0040,
+    inset 0 0 10px rgba(255, 0, 64, 0.3);
+  border: 2px solid #ff0040;
+  /* animation: neon-red-pulse 2s infinite alternate; */
+}
+
+/* .room-on_going_service .room-status-indicator {
+  background-color: #00bfff;
+  box-shadow: 
+    0 0 10px #00bfff,
+    0 0 20px #00bfff,
+    0 0 30px #00bfff,
+    0 0 40px #00bfff,
+    inset 0 0 10px rgba(0, 191, 255, 0.3);
+  border: 2px solid #00bfff;
+  animation: neon-blue-pulse 2s infinite alternate;
+} */
+
+/* .room-on_going_service .room-status-text {
+  color: #00bfff;
+} */
+
+/* .room-on_going_service .room-timer {
+  color: #00bfff;
+} */
+
+/* Neon pulse animations */
+@keyframes neon-green-pulse {
+  0% {
+    box-shadow: 
+      0 0 5px #00ff41,
+      0 0 10px #00ff41,
+      0 0 15px #00ff41,
+      0 0 20px #00ff41,
+      inset 0 0 5px rgba(0, 255, 65, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px #00ff41,
+      0 0 25px #00ff41,
+      0 0 35px #00ff41,
+      0 0 45px #00ff41,
+      inset 0 0 15px rgba(0, 255, 65, 0.4);
+  }
+}
+
+@keyframes neon-red-pulse {
+  0% {
+    box-shadow: 
+      0 0 5px #ff0040,
+      0 0 10px #ff0040,
+      0 0 15px #ff0040,
+      0 0 20px #ff0040,
+      inset 0 0 5px rgba(255, 0, 64, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px #ff0040,
+      0 0 25px #ff0040,
+      0 0 35px #ff0040,
+      0 0 45px #ff0040,
+      inset 0 0 15px rgba(255, 0, 64, 0.4);
+  }
+}
+
+@keyframes neon-yellow-pulse {
+  0% {
+    box-shadow: 
+      0 0 5px #ffff00,
+      0 0 10px #ffff00,
+      0 0 15px #ffff00,
+      0 0 20px #ffff00,
+      inset 0 0 5px rgba(255, 255, 0, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px #ffff00,
+      0 0 25px #ffff00,
+      0 0 35px #ffff00,
+      0 0 45px #ffff00,
+      inset 0 0 15px rgba(255, 255, 0, 0.4);
+  }
+}
+
+@keyframes neon-blue-pulse {
+  0% {
+    box-shadow: 
+      0 0 5px #00bfff,
+      0 0 10px #00bfff,
+      0 0 15px #00bfff,
+      0 0 20px #00bfff,
+      inset 0 0 5px rgba(0, 191, 255, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px #00bfff,
+      0 0 25px #00bfff,
+      0 0 35px #00bfff,
+      0 0 45px #00bfff,
+      inset 0 0 15px rgba(0, 191, 255, 0.4);
+  }
 }
 
 /* Monitor page layout adjustments - removed old grid layout */
@@ -300,7 +456,7 @@ header {
 .monitor-heading p {
   margin: 0;
   font-weight: bold;
-  font-size: 25px;
+  font-size: 35px;
   letter-spacing: 1px;
 }
 
@@ -328,14 +484,14 @@ header {
 .cashier-card {
   background-color: #902726;
   color: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 6px;
   text-align: center;
   /* width: 120px; */
-  height: 100px;
+  height: 120px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
@@ -349,7 +505,7 @@ header {
 }
 
 .cashier-name {
-  font-size: 22px;
+  font-size: 35px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -358,7 +514,7 @@ header {
 }
 
 .cashier-counter {
-  font-size: 22px;
+  font-size: 35px;
   font-weight: bold;
   line-height: 1.1;
   word-break: break-all;
@@ -379,7 +535,7 @@ header {
 } */
 
 /* Toggle Room Status Button Styles */
-.toggle-status-button {
+/* .toggle-status-button {
   background-color: #28a745 !important;
   transition: all 0.3s ease;
 }
@@ -391,6 +547,21 @@ header {
 
 .toggle-status-button.available-status {
   background-color: #28a745 !important;
+  color: white !important;
+} */
+
+.toggle-status-button {
+  background-color: #ffc107 !important;
+  transition: all 0.3s ease;
+}
+
+.toggle-status-button.preparing-status {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.toggle-status-button.available-status {
+  background-color: #ffc107 !important;
   color: white !important;
 }
 
@@ -3354,6 +3525,7 @@ a.logout:hover {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  font-family: "Bebas Neue";
 }
 
 .monitor-main-details-container {
@@ -3405,21 +3577,21 @@ a.logout:hover {
 
 .waiting {
   padding: 10px 50px;
-  font-size: 32px;
+  font-size: 45px;
   color: #fff;
   font-weight: bold;
   margin-block: 10px;
 }
 
 .monitor-serving-container {
-  font-size: 32px;
+  font-size: 45px;
   /* padding: 10px 20px; */
   font-weight: bold;
   margin-block: 10px;
 }
 
 .room-in-service {
-  font-size: 32px;
+  font-size: 45px;
   /* padding: 10px 10px; */
   font-weight: bold;
   margin-block: 10px;

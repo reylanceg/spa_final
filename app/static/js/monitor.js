@@ -7,6 +7,7 @@ let soundReady = false;
 
 // Timer management for in-service transactions
 let activeTimers = new Map(); // Map of transaction_id -> interval_id
+let roomTimers = new Map(); // Map of room_number -> interval_id for room status timers
 
 function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
@@ -19,8 +20,8 @@ function calculateRemainingTime(startTime, totalDurationMinutes) {
   const start = new Date(startTime);
   const now = new Date();
   const elapsedMs = now - start;
-  // Convert total duration from minutes to milliseconds (matching service_management logic)
-  const totalMs = totalDurationMinutes * 1000; // Change from minutes to seconds like service_management
+  // Match service_management logic: treat minutes as seconds
+  const totalMs = totalDurationMinutes * 1000;
   const remainingMs = Math.max(0, totalMs - elapsedMs);
   return Math.ceil(remainingMs / 1000); // Return remaining seconds
 }
@@ -46,10 +47,59 @@ function startTimer(transactionId, startTime, totalDurationMinutes) {
   activeTimers.set(transactionId, intervalId);
 }
 
+function startRoomTimer(roomNumber, transactionId, startTime, totalDurationMinutes) {
+  console.log("startRoomTimer called with:", { roomNumber, transactionId, startTime, totalDurationMinutes });
+  
+  // Clear existing room timer if any
+  if (roomTimers.has(roomNumber)) {
+    clearInterval(roomTimers.get(roomNumber));
+  }
+  
+  // Initial timer update
+  const timerElement = document.getElementById(`room-timer-${roomNumber}`);
+  console.log(`Initial timer check for room ${roomNumber}:`, { timerElement, elementExists: !!timerElement });
+  
+  if (!timerElement) {
+    console.error(`Timer element not found immediately: room-timer-${roomNumber}`);
+    return;
+  }
+
+  // Set initial timer display
+  const initialRemainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+  timerElement.textContent = formatTime(initialRemainingSeconds);
+  console.log(`Initial timer display for room ${roomNumber}:`, formatTime(initialRemainingSeconds));
+
+  const intervalId = setInterval(() => {
+    const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+    const timerElement = document.getElementById(`room-timer-${roomNumber}`);
+    if (timerElement) {
+      timerElement.textContent = formatTime(remainingSeconds);
+      // If timer reaches 0, add visual indication
+      if (remainingSeconds <= 0) {
+        timerElement.style.color = '#ff4444'; // Red color when time is up
+      }
+    } else {
+      console.error(`Timer element not found during update: room-timer-${roomNumber}`);
+      clearInterval(intervalId);
+      roomTimers.delete(roomNumber);
+    }
+  }, 1000);
+  
+  roomTimers.set(roomNumber, intervalId);
+  console.log("Room timer started for room", roomNumber, "with interval ID", intervalId);
+}
+
 function stopTimer(transactionId) {
   if (activeTimers.has(transactionId)) {
     clearInterval(activeTimers.get(transactionId));
     activeTimers.delete(transactionId);
+  }
+}
+
+function stopRoomTimer(roomNumber) {
+  if (roomTimers.has(roomNumber)) {
+    clearInterval(roomTimers.get(roomNumber));
+    roomTimers.delete(roomNumber);
   }
 }
 
@@ -194,6 +244,12 @@ function refreshLists() {
         clearInterval(intervalId);
       });
       activeTimers.clear();
+      
+      // Stop all existing room timers before refreshing
+      roomTimers.forEach((intervalId, roomNumber) => {
+        clearInterval(intervalId);
+      });
+      roomTimers.clear();
 
       // WAITING: Shows transactions after customer confirms services (pending_therapist status)
       w.innerHTML = "";
@@ -235,22 +291,43 @@ function refreshRoomStatus() {
       roomStatusContainer.innerHTML = "";
       
       (data.rooms || []).forEach((room) => {
+        console.log("Room data:", room); // Debug log
         const statusClass = `room-${room.status.toLowerCase()}`;
         
         // Create the room info content with proper status display
         let statusDisplay = room.status;
+        let showTimer = false;
+        
         if (room.status === 'preparing') {
           statusDisplay = 'ON BREAK';
         } else if (room.status === 'available') {
           statusDisplay = 'AVAILABLE';
         } else if (room.status === 'occupied') {
           statusDisplay = 'OCCUPIED';
+        } else if (room.status === 'on_going_service') {
+          statusDisplay = 'ON GOING SERVICE';
+          showTimer = true;
+        }
+
+        // Determine if we should show timer based on status and data availability
+        if (room.status === 'on_going_service' && room.service_start_at && room.total_duration_minutes) {
+          console.log("Room has ongoing service with timer data:", {
+            room_number: room.room_number,
+            service_start_at: room.service_start_at,
+            total_duration_minutes: room.total_duration_minutes,
+            transaction_id: room.transaction_id
+          });
+          showTimer = true;
         }
         
         let roomInfoContent = `
           <div class="room-number">ROOM ${room.room_number}</div>
-          <div class="room-status-text">${statusDisplay}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="room-status-text">${statusDisplay}</div>
+            ${showTimer ? `<div class="room-timer" id="room-timer-${room.room_number}">00:00:00</div>` : ''}
+          </div>
         `;
+        
         
         // Add transaction code if available
         // if (room.transaction_code) {
@@ -262,6 +339,16 @@ function refreshRoomStatus() {
           roomInfoContent += `<div class="room-customer">${room.customer_name}</div>`;
         }
         
+        // // Add timer if service is running (has service_start_at and total_duration_minutes)
+        // if (room.service_start_at && room.total_duration_minutes) {
+        //   console.log("Adding timer for room", room.room_number, "with data:", {
+        //     service_start_at: room.service_start_at,
+        //     total_duration_minutes: room.total_duration_minutes,
+        //     transaction_id: room.transaction_id
+        //   });
+        //   roomInfoContent += `<div class="room-timer" id="room-timer-${room.room_number}">00:00:00</div>`;
+        // }
+        
         // Create the complete room card with status indicator
         const roomContent = `
           <div class="room-status-indicator"></div>
@@ -271,6 +358,15 @@ function refreshRoomStatus() {
         `;
         
         roomStatusContainer.appendChild(div(roomContent, `room-card ${statusClass}`));
+        
+        // Start timer for rooms with ongoing services
+        if (room.status === 'on_going_service' && room.service_start_at && room.total_duration_minutes && room.transaction_id) {
+          console.log("Starting timer for ongoing service in room", room.room_number);
+          // Use setTimeout to ensure DOM element is created before starting timer
+          setTimeout(() => {
+            startRoomTimer(room.room_number, room.transaction_id, room.service_start_at, room.total_duration_minutes);
+          }, 100);
+        }
       });
     })
     .catch((error) => {

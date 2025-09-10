@@ -88,6 +88,7 @@ function checkActiveTransaction() {
 function updateConfirmButtonState(hasActiveTransaction) {
   const confirmButton = document.getElementById("confirm_next");
   const toggleButton = document.getElementById("toggle_room_status");
+  const currentStatus = toggleButton.getAttribute("data-status");
   
   if (hasActiveTransaction) {
     confirmButton.disabled = true;
@@ -98,9 +99,18 @@ function updateConfirmButtonState(hasActiveTransaction) {
     toggleButton.disabled = true;
     toggleButton.classList.add("disabled-state");
   } else {
-    confirmButton.disabled = false;
-    confirmButton.textContent = "Confirm FIFO";
-    confirmButton.classList.remove("disabled-state");
+    // Check if therapist is on break (preparing status)
+    const isOnBreak = currentStatus === "preparing";
+    
+    if (isOnBreak) {
+      confirmButton.disabled = true;
+      confirmButton.textContent = "On Break - Unavailable";
+      confirmButton.classList.add("disabled-state");
+    } else {
+      confirmButton.disabled = false;
+      confirmButton.textContent = "Confirm FIFO";
+      confirmButton.classList.remove("disabled-state");
+    }
     
     // Re-enable the on-break toggle button when no active transaction
     toggleButton.disabled = false;
@@ -159,6 +169,9 @@ function bindControls() {
           toggleButton.classList.add("available-status");
           toggleButton.classList.remove("preparing-status");
         }
+        
+        // Update confirm button state based on new room status
+        updateConfirmButtonState(false); // No active transaction, just check room status
       } else {
         alert("Error updating room status: " + (data.error || "Unknown error"));
         // Reset button text on error

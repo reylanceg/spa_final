@@ -79,24 +79,36 @@ def room_status():
         
         # Determine final status based on transactions and room status
         if in_service_transaction:
-            status = "occupied"
+            status = "on_going_service"  # Service is actively running
             transaction_code = in_service_transaction.code
             customer_name = in_service_transaction.customer_name
+            service_start_at = in_service_transaction.service_start_at.isoformat() if in_service_transaction.service_start_at else None
+            total_duration_minutes = in_service_transaction.total_duration_minutes
+            transaction_id = in_service_transaction.id
         elif preparing_transaction:
-            status = "occupied"  # Room is occupied when therapist confirmed
+            status = "occupied"  # Room is occupied when therapist confirmed but service not started
             transaction_code = preparing_transaction.code
             customer_name = preparing_transaction.customer_name
+            service_start_at = None
+            total_duration_minutes = None
+            transaction_id = preparing_transaction.id
         else:
             # Use the room's actual status from the Room table
             status = room.status
             transaction_code = None
             customer_name = None
+            service_start_at = None
+            total_duration_minutes = None
+            transaction_id = None
         
         room_statuses.append({
             'room_number': room.room_number,
             'status': status,
             'transaction_code': transaction_code,
-            'customer_name': customer_name
+            'customer_name': customer_name,
+            'service_start_at': service_start_at,
+            'total_duration_minutes': total_duration_minutes,
+            'transaction_id': transaction_id
         })
     
     return jsonify({'rooms': room_statuses})
