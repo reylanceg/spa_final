@@ -12,10 +12,10 @@ Real-time multi-role SPA management system (Customer, Therapist, Cashier, Monito
 ## Setup
 
 1. Install Python 3.10+.
-2. Install MySQL (XAMPP) and create database `spa_db`.
-3. Copy `.env.example` to `.env` and adjust values.
-4. Create and activate a virtualenv.
-5. Install deps:
+2. Install MySQL (XAMPP) and create database `test_db`.
+3. Create virtual environment using command `python -m venv env`.
+4. Activate the virtual environment `env/Scripts/activate`.
+5. Install dependencies, go inside the spa_management folder, execute the command:
    ```bash
    pip install -r requirements.txt
    ```
@@ -23,16 +23,18 @@ Real-time multi-role SPA management system (Customer, Therapist, Cashier, Monito
    - Start the server once:
      ```bash
      python run.py
-     ```
-   - In browser, open `http://localhost:5000/initdb` to create tables and seed.
+   ```
+7. Go to the scripts folder , then run the seed.py to seed tables with data:
+   - `python seed.py`
 
-## Run
+- Customer Service selection pages:
+   - `http://localhost:5000/services1`
+   - `http://localhost:5000/services2`
 
-```bash
-python run.py
-```
-
-- Customer: `http://localhost:5000/customer`
-- Therapist: `http://localhost:5000/therapist`
-- Cashier: `http://localhost:5000/cashier`
+- Therapist: `http://localhost:5000/login/therapist`
+- Cashier: `http://localhost:5000/login/cashier`
 - Monitor: `http://localhost:5000/monitor`
+
+Therapist and Cashier sample credentials are inside the seed.py file, example data:
+- therapist1 = password123
+- cashier1 = password123
