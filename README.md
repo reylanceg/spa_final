@@ -19,11 +19,13 @@ Real-time multi-role SPA management system (Customer, Therapist, Cashier, Monito
    ```bash
    pip install -r requirements.txt
    ```
+   
 6. Initialize DB and seed sample data:
    - Start the server once:
      ```bash
-     python run.py
-   ```
+     python run.py 
+     ```
+
 7. Go to the scripts folder , then run the seed.py to seed tables with data:
    - `python seed.py`
 
