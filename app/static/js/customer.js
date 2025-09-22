@@ -522,7 +522,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggle && cartContainer) {
     toggle.addEventListener("click", () => {
       cartContainer.classList.toggle("close");
+      // Add/remove class to body to control services-cards-container layout
+      document.body.classList.toggle("cart-closed", cartContainer.classList.contains("close"));
     });
+  }
+
+  // Initialize body class based on initial cart state
+  if (cartContainer && cartContainer.classList.contains("close")) {
+    document.body.classList.add("cart-closed");
   }
 
   // Site link highlighting

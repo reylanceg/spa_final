@@ -618,9 +618,16 @@ header {
 
 .services-cards-container {
   display: grid;
-  grid-template-columns: repeat(4, 250px);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   padding: 20px;
+  margin-right: 400px; /* Default margin for when cart is open */
+  transition: margin-right 0.5s ease;
+}
+
+/* When cart is closed, reduce the right margin to use more available space */
+body.cart-closed .services-cards-container {
+  margin-right: 90px; /* Only account for the closed cart width */
 }
 
 /* 4 cards */
