@@ -9,14 +9,15 @@ from ..models import Therapist, Cashier
 from ..extensions import db
 
 
-def generate_auth_token() -> str:
-    """Generate a secure random token"""
-    return secrets.token_urlsafe(32)
+# def generate_auth_token() -> str:
+#     """Generate a secure random token"""
+#     return secrets.token_urlsafe(32)
 
 
 def create_token_for_user(user: Union[Therapist, Cashier]) -> str:
     """Create and save auth token for a user"""
-    token = generate_auth_token()
+    # token = generate_auth_token()
+    token = secrets.token_urlsafe(32)
     user.auth_token = token
     user.token_expires_at = datetime.now() + timedelta(hours=24)  # Token valid for 24 hours
     db.session.commit()

@@ -2630,6 +2630,21 @@ a.logout:hover {
   box-shadow: 0 5px 12px rgba(144, 39, 38, 0.4);
 }
 
+.cashier-confirm-button:disabled {
+  background-color: #666 !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cashier-confirm-button:disabled:hover {
+  background-color: #666 !important;
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
 .cashier-payment-container {
   width: 80%;
   max-width: 600px;

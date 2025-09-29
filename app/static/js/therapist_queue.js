@@ -216,3 +216,4 @@ socket.on("therapist_queue_updated", () => {
 
 bindControls();
 refreshQueue();
+

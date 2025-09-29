@@ -210,7 +210,7 @@ function renderCurrent(tx) {
     `;
   }
 
-  fetchWithAuth("/api/services")
+  fetch("/api/services")
     .then((r) => r.json())
     .then((list) => {
       const sel = document.getElementById("add_service_select");

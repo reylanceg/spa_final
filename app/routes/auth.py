@@ -17,24 +17,25 @@ def login_therapist():
     password = request.form.get("password", "").strip()
     room_number = request.form.get("room_number", "").strip()
 
-    t = Therapist.query.filter_by(username=username).first()
-    if not t or not t.check_password(password):
+    therapist_data = Therapist.query.filter_by(username=username).first()
+    if not therapist_data or not therapist_data.check_password(password):
         return render_template("login_therapist.html", error="Invalid credentials")
 
     if room_number:
-        t.room_number = room_number
+        therapist_data.room_number = room_number
         db.session.commit()
 
     # Generate auth token
-    token = create_token_for_user(t)
+    token = create_token_for_user(therapist_data)
     
     # Still set session for backward compatibility
-    session["therapist_id"] = t.id
+    session["therapist_id"] = therapist_data.id
     
     # Return a page that will store the token and redirect
-    return render_template("login_success_therapist.html", 
-                         token=token, 
-                         redirect_url=url_for("therapist.therapist_page"))
+    # return render_template("login_success_therapist.html", 
+    #                      token=token, 
+    #                      redirect_url=url_for("therapist.therapist_page"))
+    return render_template("therapist.html", token=token)
 
 
 @auth_bp.get("/logout/therapist")
@@ -60,8 +61,8 @@ def login_cashier():
     password = request.form.get("password", "").strip()
     counter_number = request.form.get("counter_number", "").strip()
 
-    c = Cashier.query.filter_by(username=username).first()
-    if not c or not c.check_password(password):
+    cashier = Cashier.query.filter_by(username=username).first()
+    if not cashier or not cashier.check_password(password):
         return render_template("login_cashier.html", error="Invalid credentials")
 
     if counter_number:
@@ -69,15 +70,16 @@ def login_cashier():
         db.session.commit()
 
     # Generate auth token
-    token = create_token_for_user(c)
+    token = create_token_for_user(cashier)
     
     # Still set session for backward compatibility
-    session["cashier_id"] = c.id
+    session["cashier_id"] = cashier.id
     
     # Return a page that will store the token and redirect
-    return render_template("login_success_cashier.html", 
-                         token=token, 
-                         redirect_url=url_for("cashier.cashier_page"))
+    # return render_template("login_success_cashier.html", 
+    #                      token=token, 
+    #                      redirect_url=url_for("cashier.cashier_page"))
+    return render_template('cashier.html', token=token)
 
 
 @auth_bp.get("/logout/cashier")

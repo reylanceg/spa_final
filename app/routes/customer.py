@@ -14,7 +14,7 @@ def home_page():
     return render_template("home.html", services=services, categories=categories)
 
 @customer_bp.get("/about")
-def about_age():
+def about_page():
     return render_template("about.html")
 
 # Experimental link for service 2 page
@@ -57,32 +57,32 @@ def api_services():
     return jsonify(result)
 
 # API to get service classifications for a specific service
-@customer_bp.get("/api/services/<int:service_id>/classifications")
-def api_service_classifications(service_id):
-    service = Service.query.get_or_404(service_id)
-    return jsonify([
-        {
-            "id": classification.id,
-            "classification_name": classification.classification_name,
-            "price": classification.price,
-            "duration_minutes": classification.duration_minutes,
-            "service_name": service.service_name,
-            "category": service.category.category_name if service.category else "Uncategorized"
-        }
-        for classification in service.classifications
-    ])
+# @customer_bp.get("/api/services/<int:service_id>/classifications")
+# def api_service_classifications(service_id):
+#     service = Service.query.get_or_404(service_id)
+#     return jsonify([
+#         {
+#             "id": classification.id,
+#             "classification_name": classification.classification_name,
+#             "price": classification.price,
+#             "duration_minutes": classification.duration_minutes,
+#             "service_name": service.service_name,
+#             "category": service.category.category_name if service.category else "Uncategorized"
+#         }
+#         for classification in service.classifications
+#     ])
 
-# API to get all service categories
-@customer_bp.get("/api/categories")
-def api_categories():
-    categories = ServiceCategory.query.order_by(ServiceCategory.category_name.asc()).all()
-    return jsonify([
-        {
-            "id": category.id,
-            "category_name": category.category_name,
-            "services_count": len(category.services)
-        }
-        for category in categories
-    ])
+# # API to get all service categories
+# @customer_bp.get("/api/categories")
+# def api_categories():
+#     categories = ServiceCategory.query.order_by(ServiceCategory.category_name.asc()).all()
+#     return jsonify([
+#         {
+#             "id": category.id,
+#             "category_name": category.category_name,
+#             "services_count": len(category.services)
+#         }
+#         for category in categories
+#     ])
 
 

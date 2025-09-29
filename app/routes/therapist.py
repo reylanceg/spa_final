@@ -34,7 +34,7 @@ def service_management_page():
 
 @therapist_bp.post("/therapist/toggle-room-status")
 def toggle_room_status():
-    """Toggle room status between available and preparing"""
+    #Toggle room status between available and preparing
     therapist, auth_method = get_current_therapist()
     
     if not therapist:

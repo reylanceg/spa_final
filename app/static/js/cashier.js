@@ -372,9 +372,61 @@ function renderPaymentPanel(tx) {
   }
 }
 
+function checkActiveTransactionAndUpdateButton() {
+  const pickNextBtn = document.getElementById("pick_next");
+  const currentTransaction = sessionStorage.getItem('current_payment_transaction');
+  
+  if (currentTransaction) {
+    try {
+      const tx = JSON.parse(currentTransaction);
+      // Disable button if there's an active transaction
+      pickNextBtn.disabled = true;
+      pickNextBtn.textContent = "Transaction Active";
+      pickNextBtn.style.backgroundColor = "#666";
+      pickNextBtn.style.cursor = "not-allowed";
+      pickNextBtn.title = "Complete current transaction before claiming new one";
+    } catch (e) {
+      // If there's an error parsing, clear the storage and enable button
+      sessionStorage.removeItem('current_payment_transaction');
+      enableConfirmButton(pickNextBtn);
+    }
+  } else {
+    // Enable button if no active transaction
+    enableConfirmButton(pickNextBtn);
+  }
+}
+
+function enableConfirmButton(button) {
+  button.disabled = false;
+  button.textContent = "CONFIRM (FIFO)";
+  button.style.backgroundColor = ""; // Reset to default
+  button.style.cursor = "";
+  button.title = "";
+}
+
 function bindControls() {
   socket.emit("cashier_subscribe");
-  document.getElementById("pick_next").addEventListener("click", () => {
+  
+  // Check transaction status initially
+  checkActiveTransactionAndUpdateButton();
+  
+  // Listen for storage changes from other tabs/windows
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'current_payment_transaction') {
+      checkActiveTransactionAndUpdateButton();
+    }
+  });
+  
+  // Periodically check transaction status (in case of direct storage manipulation)
+  setInterval(checkActiveTransactionAndUpdateButton, 5000);
+  
+  document.getElementById("pick_next").addEventListener("click", (e) => {
+    // Prevent action if button is disabled
+    if (e.target.disabled) {
+      e.preventDefault();
+      return false;
+    }
+    
     myName = document.getElementById("cashier_name").value || "Cashier 1";
     const counter_number =
       document.getElementById("counter_number").value || "1";
@@ -396,7 +448,9 @@ socket.on("monitor_updated", () => {
 socket.on("cashier_claim_result", (res) => {
   if (res.ok) {
     // Store transaction in sessionStorage and redirect to payment management
-    sessionStorage.setItem('current_transaction', JSON.stringify(res.transaction));
+    sessionStorage.setItem('current_payment_transaction', JSON.stringify(res.transaction));
+    // Update button status immediately before redirect
+    checkActiveTransactionAndUpdateButton();
     window.location.href = "/cashier/payment-management";
   } else {
     alert(res.error || "No finished customers");

@@ -38,14 +38,15 @@ const servicesModalClose = document.getElementById("services_modal_close");
 const servicesModalConfirm = document.getElementById("services_modal_confirm");
 
 let modalSelection = new Set();
-let servicesData = [];
+let servicesData = []; // Array , dito iniistore yung mga data na nakuha sa API
 
+// API para makuha yung data sa database
 async function loadServices() {
   try {
     const res = await fetch("/api/services", { credentials: "same-origin" });
     if (!res.ok) throw new Error("Failed to load services");
     servicesData = await res.json();
-    console.log(servicesData);
+    // console.log(servicesData);
   } catch (err) {
     console.error("Error loading services:", err);
     servicesData = [];
@@ -270,17 +271,16 @@ function openServicesModal(title) {
 
   // Start with items already in the cart highlighted
   modalSelection = new Set(cart.map((i) => String(i.classification_id)));
-  updateModalConfirmState(); // Add this line
+  servicesModalConfirm.disabled = modalSelection.size === 0; // Disable Confirm Button sa cart if walang item na nakalagay
 
   servicesModalList.innerHTML = "";
-  const filterTitle = title && title !== "All Services" ? title : null;
-  console.log(filterTitle);
+  // const filterTitle = title && title !== "All Services" ? title : null;
 
   // Set the service description based on the clicked service card (if element exists)
   const serviceDescription = document.getElementById("service-description");
   if (serviceDescription) {
-    if (filterTitle) {
-      console.log("Looking for service:", filterTitle);
+    if (title) {
+      console.log("Looking for service:", title);
       console.log(
         "Available services:",
         servicesData.map((svc) => svc.name)
@@ -288,9 +288,11 @@ function openServicesModal(title) {
 
       // Find the first service with matching name to get its description
       const matchingService = servicesData.find(
-        (svc) => svc.name === filterTitle
+        (svc) => svc.name === title
       );
-      console.log("Matching service found:", matchingService);
+      // console.log("Matching service found:", matchingService);
+      // console.log(matchingService.description)
+      
 
       if (matchingService && matchingService.description) {
         serviceDescription.textContent = matchingService.description;
@@ -303,7 +305,12 @@ function openServicesModal(title) {
   }
 
   servicesData
-    .filter((svc) => !filterTitle || svc.name === filterTitle)
+    // .filter((svc) => !filterTitle || svc.name === filterTitle)
+    .filter((svc) => {
+      if (svc.name === title) {
+        return svc.name
+      }
+    })
     .forEach((svc) => {
       // console.log(svc); // Service classifications
       const id = String(svc.classification_id);
@@ -350,11 +357,7 @@ function bindServiceCardEvents() {
   // Bind service card click events
   document.querySelectorAll(".services-card").forEach((card) => {
     card.addEventListener("click", () => {
-      const title =
-        card.dataset.title ||
-        (card.querySelector("h3")
-          ? card.querySelector("h3").textContent
-          : "Services");
+      const title = card.dataset.title
       openServicesModal(title);
     });
   });
@@ -445,7 +448,7 @@ function bindEvents() {
       const row = indicator.closest(".modal-service-item");
       if (row) row.classList.toggle("selected", isActive);
 
-      updateModalConfirmState(); // <-- Add this
+      servicesModalConfirm.disabled = modalSelection.size === 0;
     });
   }
 
@@ -473,23 +476,15 @@ function bindEvents() {
   }
 }
 
-function updateModalConfirmState() {
-  servicesModalConfirm.disabled = modalSelection.size === 0;
-}
-
 // When opening the modal and initializing selection:
 modalSelection = new Set(cart.map((i) => String(i.classification_id)));
-updateModalConfirmState();
+servicesModalConfirm.disabled = modalSelection.size === 0;
 
-socket.on("connected", () => {
-  // connected
-});
 
 socket.on("customer_selection_received", ({ transaction_id, transaction }) => {
   txnId = transaction_id;
   if (transaction) {
-    // Store the transaction data
-    pendingTransaction = transaction;
+    pendingTransaction = transaction; // Store the transaction data
     // Reset selected services and disable confirm until new selections are made
     cart = [];
     renderCart();
