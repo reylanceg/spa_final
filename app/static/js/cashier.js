@@ -128,6 +128,120 @@ function refreshQueues() {
     .then((data) => renderQueues(data));
 }
 
+function renderPaymentHistory(payments) {
+  const ul = document.getElementById("payment_history_list");
+  if (!ul) return;
+
+  if (payments.length === 0) {
+    ul.innerHTML = '<li class="no-history-message">No payment history yet</li>';
+    return;
+  }
+
+  ul.innerHTML = payments
+    .map((payment) => {
+      const servicesHTML =
+        payment.services && payment.services.length > 0
+          ? `
+            <div class="payment-history-services">
+              ${payment.services
+                .map(
+                  (service) => `
+                  <div class="payment-history-service-item">
+                    <div class="payment-history-service-name">${service.service_name.toUpperCase()}</div>
+                    <div class="payment-history-service-details">
+                      <span class="payment-history-service-duration">${service.duration_minutes} SECONDS</span>
+                      <span class="payment-history-service-area">${service.classification_name.toUpperCase()}</span>
+                      <span class="payment-history-service-price">₱${service.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+                `
+                )
+                .join("")}
+            </div>
+          `
+          : "";
+
+      const paymentDate = payment.payment_date
+        ? new Date(payment.payment_date).toLocaleString()
+        : "N/A";
+
+      return `
+      <li class="payment-history-item">
+        <div class="payment-history-card">
+          <div class="payment-history-header">
+            <div class="payment-history-code-section">
+              <span class="payment-history-code-label">CODE</span>
+              <span class="payment-history-code-number">${payment.code}</span>
+            </div>
+            <div class="payment-history-info">
+              ${payment.therapist_name ? `<div class="payment-therapist">Therapist: ${payment.therapist_name}</div>` : ''}
+              ${payment.room_number ? `<div class="payment-room">Room: ${payment.room_number}</div>` : ''}
+            </div>
+          </div>
+          ${servicesHTML}
+          <div class="payment-history-footer">
+            <div class="payment-details-grid">
+              <div class="payment-detail">
+                <span class="payment-detail-label">Amount Due:</span>
+                <span class="payment-detail-value">₱${payment.amount_due.toFixed(2)}</span>
+              </div>
+              <div class="payment-detail">
+                <span class="payment-detail-label">Amount Paid:</span>
+                <span class="payment-detail-value">₱${payment.amount_paid.toFixed(2)}</span>
+              </div>
+              <div class="payment-detail">
+                <span class="payment-detail-label">Change:</span>
+                <span class="payment-detail-value">₱${payment.change_amount.toFixed(2)}</span>
+              </div>
+              <div class="payment-detail">
+                <span class="payment-detail-label">Method:</span>
+                <span class="payment-detail-value">${payment.payment_method.toUpperCase()}</span>
+              </div>
+            </div>
+            <div class="payment-history-time">
+              <span class="payment-history-time-label">Payment Date:</span>
+              <span class="payment-history-time-value">${paymentDate}</span>
+            </div>
+            <button class="view-receipt-button" onclick="viewReceipt(${payment.transaction_id}, '${payment.code}', ${payment.amount_paid}, ${payment.change_amount}, ${JSON.stringify(payment.services).replace(/"/g, '&quot;')}, ${payment.amount_due})">
+              View Receipt
+            </button>
+          </div>
+        </div>
+      </li>
+    `;
+    })
+    .join("");
+}
+
+function refreshPaymentHistory() {
+  fetchWithAuth("/cashier/payment-history")
+    .then((r) => r.json())
+    .then((data) => {
+      renderPaymentHistory(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching payment history:", error);
+    });
+}
+
+function viewReceipt(transactionId, code, amountPaid, changeAmount, services, amountDue) {
+  const cashierName = myName || document.getElementById("cashier_name").textContent || "Cashier";
+  
+  // Create transaction object for receipt
+  const tx = {
+    id: transactionId,
+    code: code,
+    total_amount: amountDue,
+    items: services.map(s => ({
+      service_name: s.service_name,
+      duration_minutes: s.duration_minutes,
+      price: s.price
+    }))
+  };
+  
+  printReceipt(tx, amountPaid, changeAmount, cashierName);
+}
+
 function printReceipt(tx, amountPaid, changeAmount, cashierName) {
   // Create a new window for printing
   const printWindow = window.open("", "_blank", "width=600,height=600");
@@ -419,6 +533,30 @@ function bindControls() {
   
   // Periodically check transaction status (in case of direct storage manipulation)
   setInterval(checkActiveTransactionAndUpdateButton, 5000);
+  
+  // Toggle payment history visibility
+  const toggleHistoryBtn = document.getElementById("toggle_payment_history");
+  const historyContainer = document.getElementById("payment_history_container");
+  const historySection = document.querySelector(".cashier-history-section");
+  
+  if (toggleHistoryBtn && historyContainer) {
+    toggleHistoryBtn.addEventListener("click", () => {
+      if (historyContainer.style.display === "none") {
+        historyContainer.style.display = "block";
+        toggleHistoryBtn.textContent = "Hide History";
+        if (historySection) {
+          historySection.classList.add("expanded");
+        }
+        refreshPaymentHistory();
+      } else {
+        historyContainer.style.display = "none";
+        toggleHistoryBtn.textContent = "Show History";
+        if (historySection) {
+          historySection.classList.remove("expanded");
+        }
+      }
+    });
+  }
   
   document.getElementById("pick_next").addEventListener("click", (e) => {
     // Prevent action if button is disabled

@@ -25,7 +25,7 @@ def monitor_snapshot():
         return {
             'id': tx.id,
             'code': tx.code,
-            'customer_name': tx.customer_name,
+            # 'customer_name': tx.customer_name,
             'therapist': tx.therapist.name if tx.therapist else None,
             'room_number': tx.room_number,
             'total_amount': tx.total_amount,
@@ -81,14 +81,14 @@ def room_status():
         if in_service_transaction:
             status = "on_going_service"  # Service is actively running
             transaction_code = in_service_transaction.code
-            customer_name = in_service_transaction.customer_name
+            # customer_name = in_service_transaction.customer_name
             service_start_at = in_service_transaction.service_start_at.isoformat() if in_service_transaction.service_start_at else None
             total_duration_minutes = in_service_transaction.total_duration_minutes
             transaction_id = in_service_transaction.id
         elif preparing_transaction:
             status = "occupied"  # Room is occupied when therapist confirmed but service not started
             transaction_code = preparing_transaction.code
-            customer_name = preparing_transaction.customer_name
+            # customer_name = preparing_transaction.customer_name
             service_start_at = None
             total_duration_minutes = None
             transaction_id = preparing_transaction.id
@@ -96,7 +96,7 @@ def room_status():
             # Use the room's actual status from the Room table
             status = room.status
             transaction_code = None
-            customer_name = None
+            # customer_name = None
             service_start_at = None
             total_duration_minutes = None
             transaction_id = None
@@ -105,7 +105,7 @@ def room_status():
             'room_number': room.room_number,
             'status': status,
             'transaction_code': transaction_code,
-            'customer_name': customer_name,
+            # 'customer_name': customer_name,
             'service_start_at': service_start_at,
             'total_duration_minutes': total_duration_minutes,
             'transaction_id': transaction_id
@@ -147,7 +147,7 @@ def cashier_status():
                 {
                     'id': tx.id,
                     'code': tx.code,
-                    'customer_name': tx.customer_name,
+                    # 'customer_name': tx.customer_name,
                     'total_amount': tx.total_amount,
                     'status': tx.status.value
                 } for tx in all_transactions

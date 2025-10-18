@@ -261,10 +261,12 @@ function refreshLists() {
       // This includes: therapist_confirmed and in_service statuses
       serving.innerHTML = "";
       (data.serving || []).forEach((t) => {
-        if (t.status === 'therapist_confirmed') {
+        if (t.status === 'Therapist Confirmed') 
+          {
           const occupiedHtml = `<p>${t.code}</p><div style="display:flex"> <p>Room ${t.room_number}</p> <p class="occupied-flag">OCCUPIED</p></div>`;
           serving.appendChild(div(occupiedHtml, "monitor-serving-container"));
-        } else if (t.status === 'in_service') {
+        } else if (t.status === 'In Service') 
+          {
           const timerHtml = `<p>${t.code}</p><div style="display: flex"> <p>Room ${t.room_number}</p> <p class="in-service-flag">IN SERVICE</p></div> <p class="service-timer" id="timer-${t.id}">00:00:00</p>`;
           serving.appendChild(div(timerHtml, "room-in-service"));
           
@@ -335,9 +337,9 @@ function refreshRoomStatus() {
         // }
         
         // Add customer name if available
-        if (room.customer_name) {
-          roomInfoContent += `<div class="room-customer">${room.customer_name}</div>`;
-        }
+        // if (room.customer_name) {
+        //   roomInfoContent += `<div class="room-customer">${room.customer_name}</div>`;
+        // }
         
         // // Add timer if service is running (has service_start_at and total_duration_minutes)
         // if (room.service_start_at && room.total_duration_minutes) {

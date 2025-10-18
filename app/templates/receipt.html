@@ -3,7 +3,7 @@
 {% if tx %}
 <div class="card">
   <div><strong>Transaction Code:</strong> {{ tx.code }}</div>
-  <div><strong>Customer:</strong> {{ tx.customer_name or '—' }}</div>
+  <!-- <div><strong>Customer:</strong> {{ tx.customer_name or '—' }}</div> -->
   <div>
     <strong>Therapist:</strong> {{ tx.therapist.name if tx.therapist else '—' }}
   </div>

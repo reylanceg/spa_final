@@ -69,15 +69,89 @@ function renderQueue(list) {
     .join("");
 }
 
-{
-  /* <div class="center-info">${customerNameHTML}</div>; */
-}
-
 function refreshQueue() {
   fetchWithAuth("/monitor_snapshot")
     .then((r) => r.json())
     .then((data) => {
       renderQueue(data.waiting || []);
+    });
+}
+
+function renderFinishedTransactions(transactions) {
+  const ul = document.getElementById("finished_transactions");
+  if (!ul) return;
+
+  if (transactions.length === 0) {
+    ul.innerHTML = '<li class="no-history-message">No finished transactions yet</li>';
+    return;
+  }
+
+  ul.innerHTML = transactions
+    .map((t) => {
+      const servicesHTML =
+        t.services && t.services.length > 0
+          ? `
+            <div class="history-services">
+              ${t.services
+                .map(
+                  (service) => `
+                  <div class="history-service-item">
+                    <div class="history-service-name">${service.service_name.toUpperCase()}</div>
+                    <div class="history-service-details">
+                      <span class="history-service-duration">${service.duration_minutes} SECONDS</span>
+                      <span class="history-service-area">${service.classification_name.toUpperCase()}</span>
+                      <span class="history-service-price">₱${service.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+                `
+                )
+                .join("")}
+            </div>
+          `
+          : "";
+
+      const finishTime = t.service_finish_at
+        ? new Date(t.service_finish_at).toLocaleString()
+        : "N/A";
+
+      return `
+      <li class="history-item">
+        <div class="history-card">
+          <div class="history-header">
+            <div class="history-code-section">
+              <span class="history-code-label">CODE</span>
+              <span class="history-code-number">${t.code}</span>
+            </div>
+            <div class="history-status">
+              <span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span>
+            </div>
+          </div>
+          ${servicesHTML}
+          <div class="history-footer">
+            <div class="history-total">
+              <span class="history-total-label">Total:</span>
+              <span class="history-total-amount">₱${t.total_amount.toFixed(2)}</span>
+            </div>
+            <div class="history-time">
+              <span class="history-time-label">Finished:</span>
+              <span class="history-time-value">${finishTime}</span>
+            </div>
+          </div>
+        </div>
+      </li>
+    `;
+    })
+    .join("");
+}
+
+function refreshFinishedTransactions() {
+  fetchWithAuth("/therapist/finished-transactions")
+    .then((r) => r.json())
+    .then((data) => {
+      renderFinishedTransactions(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching finished transactions:", error);
     });
 }
 
@@ -124,13 +198,39 @@ function bindControls() {
   // Check for active transaction on load
   checkActiveTransaction();
 
+  // Toggle history visibility
+  const toggleHistoryBtn = document.getElementById("toggle_history");
+  const historyContainer = document.getElementById("history_container");
+  const historySection = document.querySelector(".therapist-history-section");
+  
+  if (toggleHistoryBtn && historyContainer) {
+    toggleHistoryBtn.addEventListener("click", () => {
+      if (historyContainer.style.display === "none") {
+        historyContainer.style.display = "block";
+        toggleHistoryBtn.textContent = "Hide History";
+        if (historySection) {
+          historySection.classList.add("expanded");
+        }
+        refreshFinishedTransactions();
+      } else {
+        historyContainer.style.display = "none";
+        toggleHistoryBtn.textContent = "Show History";
+        if (historySection) {
+          historySection.classList.remove("expanded");
+        }
+      }
+    });
+  }
+
+  // Confirm button sa therapist page
   document.getElementById("confirm_next").addEventListener("click", () => {
     const confirmButton = document.getElementById("confirm_next");
     if (confirmButton.disabled) return;
 
     const therapist_name =
       document.getElementById("therapist_name").value || "Therapist 1";
-    const room_number = document.getElementById("room_number").value || "101";
+    const room_number = document.getElementById("room_number").value;
+    // console.log(room_number);
     socket.emit("therapist_confirm_next", { therapist_name, room_number });
   });
 

@@ -2,7 +2,7 @@
 <div class="therapist-page-container">
   <div class="controls">
     <div id="room_number" class="therapist-room-number">
-      Room {{room_number}}
+      Room {{room_number}} {{therapist_name}}
     </div>
     <!-- <label
     >Name
@@ -44,6 +44,15 @@
         <h3 class="pending-service-header-code">Code</h3>
       </div>
       <ul id="waiting_queue"></ul>
+    </section>
+    <section class="therapist-history-section">
+      <div class="therapist-history-header">
+        <h3>Service History</h3>
+        <button id="toggle_history" class="toggle-history-button">Show History</button>
+      </div>
+      <div id="history_container" class="history-container" style="display: none;">
+        <ul id="finished_transactions"></ul>
+      </div>
     </section>
   </div>
 </div>

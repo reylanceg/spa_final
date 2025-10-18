@@ -35,7 +35,11 @@ def login_therapist():
     # return render_template("login_success_therapist.html", 
     #                      token=token, 
     #                      redirect_url=url_for("therapist.therapist_page"))
-    return render_template("therapist.html", token=token)
+    # return render_template("therapist.html", 
+    #                      token=token,
+    #                      therapist_name=therapist_data.name,
+    #                      room_number=therapist_data.room_number)
+    return redirect(url_for("therapist.therapist_page"))
 
 
 @auth_bp.get("/logout/therapist")
@@ -49,7 +53,7 @@ def logout_therapist():
     session.pop("therapist_id", None)
     return redirect(url_for("auth.login_therapist_form"))
 
-
+# Cashier Login/Logout
 @auth_bp.get("/login/cashier")
 def login_cashier_form():
     return render_template("login_cashier.html")
@@ -79,7 +83,7 @@ def login_cashier():
     # return render_template("login_success_cashier.html", 
     #                      token=token, 
     #                      redirect_url=url_for("cashier.cashier_page"))
-    return render_template('cashier.html', token=token)
+    return redirect(url_for("cashier.cashier_page"))
 
 
 @auth_bp.get("/logout/cashier")

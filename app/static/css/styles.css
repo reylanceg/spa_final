@@ -618,7 +618,7 @@ header {
 
 .services-cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
   padding: 20px;
   margin-right: 400px; /* Default margin for when cart is open */
@@ -2284,9 +2284,13 @@ body {
 /* Therapist page start */
 
 .therapist-page-container {
-  height: 100%;
-  background: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
-    url(/static/img/about_page_background.jpg) no-repeat center/cover;
+  height: 100vh;
+  overflow: hidden;
+  background-image: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
+    url(/static/img/about_page_background.jpg);
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .therapist-pending-services-container {
@@ -2297,6 +2301,7 @@ body {
   align-items: flex-start;
   margin: auto;
   padding-top: 20px;
+  gap: 20px;
 }
 
 .controls {
@@ -2526,12 +2531,245 @@ body {
   border-bottom: none;
 }
 
+/* Therapist History Section Styles */
+.therapist-history-section {
+  width: 500px;
+  max-width: 90vw;
+  background-color: #fff4f4;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 90px;
+  display: flex;
+  flex-direction: column;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.therapist-history-section.expanded {
+  max-height: calc(100vh - 150px);
+}
+
+.therapist-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #902726;
+}
+
+.therapist-history-header h3 {
+  color: #902726;
+  font-size: 20px;
+  margin: 0;
+}
+
+.toggle-history-button {
+  padding: 8px 16px;
+  background-color: #902726;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-history-button:hover {
+  background-color: #7a1f1e;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(144, 39, 38, 0.3);
+}
+
+.history-container {
+  max-height: calc(100vh - 390px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.history-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-container::-webkit-scrollbar-thumb {
+  background: #902726;
+  border-radius: 4px;
+}
+
+.history-container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.history-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-item {
+  margin-bottom: 15px;
+}
+
+.history-card {
+  background: #ffffff;
+  border: 1px solid #e0d4c4;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0d4c4;
+}
+
+.history-code-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.history-code-label {
+  font-size: 10px;
+  color: #902726;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-code-number {
+  font-size: 22px;
+  font-weight: bold;
+  color: #902726;
+  line-height: 1.2;
+}
+
+.history-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-finished {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-paid {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.history-services {
+  margin-bottom: 12px;
+}
+
+.history-service-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed #e0d4c4;
+}
+
+.history-service-item:last-child {
+  border-bottom: none;
+}
+
+.history-service-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #902726;
+  margin-bottom: 4px;
+}
+
+.history-service-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #666;
+}
+
+.history-service-duration,
+.history-service-area,
+.history-service-price {
+  font-weight: 500;
+}
+
+.history-service-price {
+  color: #902726;
+  font-weight: 600;
+}
+
+.history-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #e0d4c4;
+}
+
+.history-total,
+.history-time {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-total-label,
+.history-time-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.history-total-amount {
+  font-size: 16px;
+  font-weight: bold;
+  color: #902726;
+}
+
+.history-time-value {
+  font-size: 12px;
+  color: #444;
+  font-weight: 500;
+}
+
+.no-history-message {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-style: italic;
+}
+
 /* Therapist page end */
 
 /* Cashier page start */
 
 .cashier-page-container {
   height: 100vh;
+  overflow: hidden;
   background: linear-gradient(rgba(91, 50, 50, 0.5), rgba(61, 43, 43, 0.5)),
     url(/static/img/about_page_background.jpg) no-repeat center/cover;
   display: flex;
@@ -2539,31 +2777,31 @@ body {
 }
 
 .cashier-pending-services-container {
-  width: 80%;
-  max-width: 600px;
+  width: 100%;
   display: flex;
+  flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  margin: auto;
-  flex: 1;
+  /* margin: auto; */
   padding-top: 20px;
+  gap: 20px;
 }
 
 .cashier-pending-services {
-  width: 100%;
+  width: 500px;
+  max-width: 90vw;
   background-color: #f8f5f2;
-  padding: 30px;
-  border-radius: 25px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
-  position: relative;
-  max-height: calc(60vh - 100px);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 200px);
   display: flex;
   flex-direction: column;
 }
 
 #cashier_waiting {
   overflow-y: auto;
-  max-height: calc(50vh - 100px);
+  max-height: calc(100vh - 300px);
   padding-right: 8px;
 }
 
@@ -3534,6 +3772,231 @@ a.logout:hover {
   text-transform: uppercase;
   font-weight: bold;
   margin-left: 10px;
+}
+
+/* Cashier Payment History Section Styles */
+.cashier-history-section {
+  width: 500px;
+  max-width: 90vw;
+  background-color: #f8f5f2;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 90px;
+  display: flex;
+  flex-direction: column;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.cashier-history-section.expanded {
+  max-height: calc(100vh - 150px);
+}
+
+.cashier-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #902726;
+}
+
+.cashier-history-header h3 {
+  color: #902726;
+  font-size: 20px;
+  margin: 0;
+}
+
+#payment_history_container {
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+#payment_history_container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#payment_history_container::-webkit-scrollbar-thumb {
+  background: #902726;
+  border-radius: 4px;
+}
+
+#payment_history_container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.payment-history-item {
+  margin-bottom: 15px;
+}
+
+.payment-history-card {
+  background: #ffffff;
+  border: 1px solid #e0d4c4;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payment-history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.payment-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0d4c4;
+}
+
+.payment-history-code-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.payment-history-code-label {
+  font-size: 10px;
+  color: #902726;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-history-code-number {
+  font-size: 22px;
+  font-weight: bold;
+  color: #902726;
+  line-height: 1.2;
+}
+
+.payment-history-info {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+}
+
+.payment-therapist,
+.payment-room {
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+
+.payment-history-services {
+  margin-bottom: 12px;
+}
+
+.payment-history-service-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed #e0d4c4;
+}
+
+.payment-history-service-item:last-child {
+  border-bottom: none;
+}
+
+.payment-history-service-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #902726;
+  margin-bottom: 4px;
+}
+
+.payment-history-service-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #666;
+}
+
+.payment-history-service-duration,
+.payment-history-service-area,
+.payment-history-service-price {
+  font-weight: 500;
+}
+
+.payment-history-service-price {
+  color: #902726;
+  font-weight: 600;
+}
+
+.payment-history-footer {
+  padding-top: 12px;
+  border-top: 1px solid #e0d4c4;
+}
+
+.payment-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.payment-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payment-detail-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.payment-detail-value {
+  font-size: 14px;
+  font-weight: bold;
+  color: #902726;
+}
+
+.payment-history-time {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.payment-history-time-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.payment-history-time-value {
+  font-size: 12px;
+  color: #444;
+  font-weight: 500;
+}
+
+.view-receipt-button {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #902726;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-receipt-button:hover {
+  background-color: #7a1f1e;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(144, 39, 38, 0.3);
 }
 
 /* Monitor page start */

@@ -58,6 +58,7 @@ table(Therapist) {
 }
 
 table(Cashier) {
+    primary_key(id): INT
     username: VARCHAR(80)
     password_hash: VARCHAR(255)
     name: VARCHAR(120)
@@ -66,6 +67,7 @@ table(Cashier) {
     auth_token: VARCHAR(255)
     token_expires_at: DATETIME
 }
+
 table(Transaction) {
     primary_key(id): INT
     code: VARCHAR(4)
@@ -75,35 +77,55 @@ table(Transaction) {
     room_number: VARCHAR(20)
     foreign_key(assigned_cashier_id): INT
     total_amount: FLOAT
+    total_duration_minutes: INT
+    created_at: DATETIME
     selection_confirmed_at: DATETIME
     therapist_confirmed_at: DATETIME
     service_start_at: DATETIME
     service_finish_at: DATETIME
-    84     cashier_claimed_at: DATETIME
-    85     paid_at: DATETIME
-    86 }
-    
-    table(TransactionItem) {
-    91     primary_key(id): INT
-    92     foreign_key(transaction_id): INT
-    93     foreign_key(service_id): INT
-    94     foreign_key(service_classification_id): INT
-    95     price: FLOAT
-    96     duration_minutes: INT
-    97 }
+    cashier_claimed_at: DATETIME
+    paid_at: DATETIME
+}
 
-    table(Payment) {
-        primary_key(id): INT
-        foreign_key(transaction_id): INT
-        foreign_key(cashier_id): INT
-{{ ... }}
+table(TransactionItem) {
+    primary_key(id): INT
+    foreign_key(transaction_id): INT
+    foreign_key(service_id): INT
+    foreign_key(service_classification_id): INT
+    price: FLOAT
+    duration_minutes: INT
+}
+
+table(Payment) {
+    primary_key(id): INT
+    foreign_key(transaction_id): INT
+    foreign_key(cashier_id): INT
+    amount_due: FLOAT
+    amount_paid: FLOAT
+    change_amount: FLOAT
+    method: VARCHAR(40)
+    created_at: DATETIME
+}
+
+table(Room) {
+    primary_key(id): INT
+    room_number: VARCHAR(20)
+    status: VARCHAR(20)
+    foreign_key(current_transaction_id): INT
+    current_customer_name: VARCHAR(120)
+}
+
+ServiceCategory "1" -- "*" Service
 Service "1" -- "*" ServiceClassification
-Service "1" -- "*" TRANSACTION_ITEM
-ServiceClassification "1" -- "*" TRANSACTION_ITEM
+Service "1" -- "*" TransactionItem
+ServiceClassification "1" -- "*" TransactionItem
 Therapist "1" -- "*" Transaction
 Cashier "1" -- "*" Transaction
-Transaction "1" -- "*" TRANSACTION_ITEM
+Transaction "1" -- "*" TransactionItem
 Transaction "1" -- "0..1" Payment
 Cashier "1" -- "*" Payment
-Transaction "1" -- "0..*" Room
+Transaction "0..*" -- "0..1" Room
+
 Transaction -- TransactionStatus
+
+@enduml

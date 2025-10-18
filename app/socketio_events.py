@@ -2,9 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-# from flask import session, request  # Unused imports
 from flask_socketio import emit, join_room
-# from sqlalchemy import select  # Unused import
 
 from .extensions import db, socketio
 from .models import (
@@ -21,7 +19,6 @@ from .utils.auth_helpers import get_current_therapist, get_current_cashier
 
 
 # Utility serializers
-
 def _iso(dt: datetime | None) -> str | None:
     if not dt:
         return None
@@ -31,12 +28,11 @@ def _iso(dt: datetime | None) -> str | None:
     except Exception:
         return None
 
-
 def serialize_transaction(tx: Transaction) -> dict[str, Any]:
     data = {
         "id": tx.id,
         "code": tx.code,
-        "customer_name": tx.customer_name,
+        # "customer_name": tx.customer_name,
         "status": tx.status.value,
         "therapist": tx.therapist.name if tx.therapist else None,
         "room_number": tx.room_number,
@@ -69,11 +65,9 @@ def serialize_transaction(tx: Transaction) -> dict[str, Any]:
 # - Global broadcast rooms: "therapist_queue", "cashier_queue", "monitor"
 # - Per-transaction room: f"txn_{tx.id}"
 
-
 @socketio.on("connect")
 def on_connect():
     emit("connected", {"message": "connected"})
-
 
 @socketio.on("join_room")
 def on_join_room(data):
@@ -88,7 +82,8 @@ def customer_confirm_selection(data):
     customer_name = data.get("customer_name")
     items = data.get("items", [])  # list of service items with classification info
 
-    tx = Transaction(customer_name=customer_name, status=TransactionStatus.pending_therapist)
+    tx = Transaction(status=TransactionStatus.pending_therapist)
+    # tx = Transaction(customer_name=customer_name, status=TransactionStatus.pending_therapist)
     db.session.add(tx)
     db.session.flush()
 
@@ -134,26 +129,23 @@ def customer_confirm_selection(data):
 
     emit("therapist_queue_updated", broadcast=True, to="therapist_queue")
     emit("monitor_updated", broadcast=True, to="monitor")
-    emit("monitor_customer_confirmed", {"code": tx.code, "customer": customer_name}, to="monitor")
+    emit("monitor_customer_confirmed", {"code": tx.code}, to="monitor")
+    # emit("monitor_customer_confirmed", {"code": tx.code, "customer": customer_name}, to="monitor")
 
     # Send initial transaction snapshot back to the customer so UI can show code, items, and total right away
     emit("customer_selection_received", {"transaction_id": tx.id, "transaction": serialize_transaction(tx)})
-
 
 @socketio.on("therapist_subscribe")
 def therapist_subscribe():
     join_room("therapist_queue")
 
-
 @socketio.on("cashier_subscribe")
 def cashier_subscribe():
     join_room("cashier_queue")
 
-
 @socketio.on("monitor_subscribe")
 def monitor_subscribe():
     join_room("monitor")
-
 
 @socketio.on("therapist_confirm_next")
 def therapist_confirm_next(data):
@@ -198,7 +190,6 @@ def therapist_confirm_next(data):
     emit("customer_txn_update", serialize_transaction(tx), to=room)
 
     emit("therapist_confirm_result", {"ok": True, "transaction": serialize_transaction(tx)})
-
 
 @socketio.on("therapist_start_service")
 def therapist_start_service(data):

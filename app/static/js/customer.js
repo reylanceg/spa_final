@@ -5,10 +5,10 @@ function saveCartToStorage() {
 }
 
 function loadCartFromStorage() {
-  const stored = localStorage.getItem("spa_cart");
-  if (stored) {
+  const stored_items = localStorage.getItem("spa_cart");
+  if (stored_items) {
     try {
-      cart = JSON.parse(stored);
+      cart = JSON.parse(stored_items);
     } catch (e) {
       cart = [];
     }
@@ -121,17 +121,17 @@ function renderCart() {
 
 // All confirmation details are shown only in the modal
 
-function showModal(tx) {
-  if (!confirmModal || !tx) return;
+function showModal(transaction) {
+  if (!confirmModal || !transaction) return;
   // populate modal
-  modalCodeEl.textContent = tx.code || "";
+  modalCodeEl.textContent = transaction.code || "";
   modalItemsEl.innerHTML = "";
   let total = 0;
-  tx.items.forEach((it) => {
-    total += it.price;
+  transaction.items.forEach((item) => {
+    total += item.price;
     const li = document.createElement("li");
-    li.textContent = `${it.service_name} - ₱${it.price.toFixed(2)} (${
-      it.duration_minutes
+    li.textContent = `${item.service_name} - ₱${item.price.toFixed(2)} (${
+      item.duration_minutes
     }m)`;
     modalItemsEl.appendChild(li);
   });
@@ -270,7 +270,7 @@ function openServicesModal(title) {
   servicesModalTitle.textContent = title || "Services";
 
   // Start with items already in the cart highlighted
-  modalSelection = new Set(cart.map((i) => String(i.classification_id)));
+  modalSelection = new Set(cart.map((item) => String(item.classification_id)));
   servicesModalConfirm.disabled = modalSelection.size === 0; // Disable Confirm Button sa cart if walang item na nakalagay
 
   servicesModalList.innerHTML = "";
@@ -381,13 +381,11 @@ function bindEvents() {
 
   // Nagttrigger para malaman na nagconfirm na ng services si customer
   document.getElementById("confirm").addEventListener("click", () => {
-    // const name = document.getElementById("customer_name").value;
-    const items = cart.map((i) => ({
-      service_id: i.id,
-      service_classification_id: i.classification_id,
+    const items = cart.map((item) => ({
+      service_id: item.id,
+      service_classification_id: item.classification_id,
     }));
     customerHasConfirmed = true; // Mark that customer has confirmed
-    // socket.emit("customer_confirm_selection", { customer_name: name, items });
     socket.emit("customer_confirm_selection", { items });
     localStorage.removeItem("spa_cart"); // <-- Clear cart after confirmation
   });
@@ -476,11 +474,6 @@ function bindEvents() {
   }
 }
 
-// When opening the modal and initializing selection:
-modalSelection = new Set(cart.map((i) => String(i.classification_id)));
-servicesModalConfirm.disabled = modalSelection.size === 0;
-
-
 socket.on("customer_selection_received", ({ transaction_id, transaction }) => {
   txnId = transaction_id;
   if (transaction) {
@@ -492,7 +485,7 @@ socket.on("customer_selection_received", ({ transaction_id, transaction }) => {
     // Only show modal if customer has confirmed their selection
     if (customerHasConfirmed) {
       showModal(pendingTransaction);
-      customerHasConfirmed = false; // Reset the flag
+      customerHasConfirmed = false; // Reset the customerHasConfirmed to false
     }
   }
   socket.emit("join_room", { room: `txn_${txnId}` });
@@ -508,8 +501,7 @@ socket.on("customer_txn_update", (tx) => {
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-  // Bind events immediately when DOM is ready
-  bindEvents();
+  bindEvents(); // Bind events immediately when DOM is ready
 
   // Cart toggle functionality
   const cartContainer = document.querySelector(".cart-container");
