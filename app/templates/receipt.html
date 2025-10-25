@@ -28,6 +28,58 @@
   <div><strong>Date:</strong> {{ tx.payment.created_at }}</div>
   {% endif %}
 </div>
+
+<div style="margin-top: 20px;">
+  <button id="printBtn" class="btn btn-primary" onclick="printToThermalPrinter({{ tx.id }})">
+    🖨️ Print Receipt (Thermal)
+  </button>
+  <span id="printStatus" style="margin-left: 10px; display: none;"></span>
+</div>
+
 {% else %}
 <p>Transaction not found.</p>
-{% endif %} {% endblock %}
+{% endif %}
+
+<script>
+function printToThermalPrinter(transactionId) {
+  const printBtn = document.getElementById('printBtn');
+  const printStatus = document.getElementById('printStatus');
+  
+  printBtn.disabled = true;
+  printStatus.style.display = 'inline';
+  printStatus.textContent = 'Printing...';
+  printStatus.style.color = 'blue';
+  
+  fetch('/cashier/print-receipt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      transaction_id: transactionId,
+      printer_host: 'localhost',
+      printer_port: 9100
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    printBtn.disabled = false;
+    if (data.success) {
+      printStatus.textContent = '✓ Receipt printed successfully!';
+      printStatus.style.color = 'green';
+      setTimeout(() => {
+        printStatus.style.display = 'none';
+      }, 3000);
+    } else {
+      printStatus.textContent = '✗ Error: ' + (data.error || 'Unknown error');
+      printStatus.style.color = 'red';
+    }
+  })
+  .catch(error => {
+    printBtn.disabled = false;
+    printStatus.textContent = '✗ Connection error: ' + error.message;
+    printStatus.style.color = 'red';
+  });
+}
+</script>
+{% endblock %}

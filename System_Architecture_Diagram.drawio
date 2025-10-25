@@ -1,0 +1,162 @@
+<mxfile host="app.diagrams.net" modified="2025-10-19T09:45:00.000Z" agent="Draw.io" version="22.0.0" etag="system-architecture" type="device">
+  <diagram name="System Architecture" id="system-arch-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- PRESENTATION TIER -->
+        <mxCell id="presentation-tier-container" value="PRESENTATION TIER (Client Layer)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="1000" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Customer Client -->
+        <mxCell id="customer-client" value="Customer&lt;br&gt;Client&lt;br&gt;&lt;br&gt;- View Services&lt;br&gt;- Browse Catalog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="presentation-tier-container">
+          <mxGeometry x="50" y="60" width="180" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Therapist Client -->
+        <mxCell id="therapist-client" value="Therapist&lt;br&gt;Client&lt;br&gt;&lt;br&gt;- Service Mgmt&lt;br&gt;- Transaction Status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="presentation-tier-container">
+          <mxGeometry x="280" y="60" width="180" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Cashier Client -->
+        <mxCell id="cashier-client" value="Cashier&lt;br&gt;Client&lt;br&gt;&lt;br&gt;- Payment Mgmt&lt;br&gt;- Receipt Gen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="presentation-tier-container">
+          <mxGeometry x="510" y="60" width="180" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Monitor Client -->
+        <mxCell id="monitor-client" value="Monitor&lt;br&gt;Display&lt;br&gt;&lt;br&gt;- Real-time Status&lt;br&gt;- Analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="presentation-tier-container">
+          <mxGeometry x="740" y="60" width="180" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Communication Label -->
+        <mxCell id="comm-label" value="HTTP/HTTPS + WebSocket (Socket.IO)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="380" y="230" width="280" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow from Presentation to Application -->
+        <mxCell id="arrow-pres-to-app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;endArrow=classic;endFill=1;strokeColor=#6c8ebf;" edge="1" parent="1" source="presentation-tier-container" target="application-tier-container">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="220" as="sourcePoint" />
+            <mxPoint x="580" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- APPLICATION TIER -->
+        <mxCell id="application-tier-container" value="APPLICATION TIER (Business Logic Layer)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="1000" height="320" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask Server -->
+        <mxCell id="flask-server" value="Flask Web Server&lt;br&gt;(Python 3.x / WSGI)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" vertex="1" parent="application-tier-container">
+          <mxGeometry x="350" y="60" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask Blueprints -->
+        <mxCell id="flask-blueprints" value="Flask Blueprints&lt;br&gt;(6 Modules)&lt;br&gt;&lt;br&gt;Customer&lt;br&gt;Therapist&lt;br&gt;Cashier&lt;br&gt;Auth&lt;br&gt;Monitor&lt;br&gt;Snapshot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="application-tier-container">
+          <mxGeometry x="50" y="140" width="180" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Flask-SocketIO -->
+        <mxCell id="flask-socketio" value="Flask-SocketIO&lt;br&gt;(v5.3.6)&lt;br&gt;&lt;br&gt;- Eventlet Mode&lt;br&gt;- Real-time&lt;br&gt;&amp;nbsp;&amp;nbsp;Broadcasting&lt;br&gt;- Room-based&lt;br&gt;&amp;nbsp;&amp;nbsp;Messaging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="application-tier-container">
+          <mxGeometry x="280" y="140" width="180" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- SQLAlchemy ORM -->
+        <mxCell id="sqlalchemy-orm" value="SQLAlchemy ORM&lt;br&gt;(v2.0.31)&lt;br&gt;&lt;br&gt;- Models&lt;br&gt;- Queries&lt;br&gt;- Transactions&lt;br&gt;- Connection&lt;br&gt;&amp;nbsp;&amp;nbsp;Pooling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="application-tier-container">
+          <mxGeometry x="510" y="140" width="180" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Business Logic -->
+        <mxCell id="business-logic" value="Business Logic Layer&lt;br&gt;&lt;br&gt;• Authentication &amp;amp; Authorization&lt;br&gt;• Transaction Management&lt;br&gt;• Payment Processing&lt;br&gt;• Real-time Event Broadcasting&lt;br&gt;• Concurrency Control" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="application-tier-container">
+          <mxGeometry x="740" y="140" width="230" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows from Flask to components -->
+        <mxCell id="arrow-flask-to-blueprints" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="application-tier-container" source="flask-server" target="flask-blueprints">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-flask-to-socketio" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="application-tier-container" source="flask-server" target="flask-socketio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-flask-to-sqlalchemy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="application-tier-container" source="flask-server" target="sqlalchemy-orm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- SQL Communication Label -->
+        <mxCell id="sql-comm-label" value="SQL Queries + Transactions (MySQL Protocol)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="380" y="610" width="280" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow from Application to Data -->
+        <mxCell id="arrow-app-to-data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;endArrow=classic;endFill=1;strokeColor=#82b366;" edge="1" parent="1" source="application-tier-container" target="data-tier-container">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="600" as="sourcePoint" />
+            <mxPoint x="580" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- DATA TIER -->
+        <mxCell id="data-tier-container" value="DATA TIER (Database Layer)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="80" y="660" width="1000" height="280" as="geometry" />
+        </mxCell>
+        
+        <!-- MySQL Server -->
+        <mxCell id="mysql-server" value="MySQL Database Server&lt;br&gt;(XAMPP MySQL v8.x)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="350" y="60" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Entity Group 1 -->
+        <mxCell id="entity-group-1" value="Therapist" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="50" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-2" value="Cashier" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="190" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-3" value="Transaction" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="330" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-4" value="Payment" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="470" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-5" value="Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="610" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-6" value="Room" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="750" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-7" value="ServiceCategory" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="890" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-8" value="ServiceClassification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="190" y="200" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entity-group-9" value="TransactionItem" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="360" y="200" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Database Features -->
+        <mxCell id="db-features" value="Database Features:&lt;br&gt;• Relational Integrity (Foreign Keys)&lt;br&gt;• Row-Level Locking (Pessimistic)&lt;br&gt;• ACID Transactions&lt;br&gt;• Indexed Queries" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="data-tier-container">
+          <mxGeometry x="550" y="200" width="320" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows from MySQL to entities -->
+        <mxCell id="arrow-mysql-to-entities" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;strokeColor=#666666;" edge="1" parent="data-tier-container" source="mysql-server" target="entity-group-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

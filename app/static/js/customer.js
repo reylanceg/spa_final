@@ -154,8 +154,8 @@ function printReceipt(tx) {
         body {
           font-family: 'Courier New', monospace;
           margin: 20px;
-          font-size: 12px;
-          line-height: 1.4;
+          font-size: 16px;
+          line-height: 1.6;
         }
         .receipt-header {
           text-align: center;
@@ -164,7 +164,7 @@ function printReceipt(tx) {
           margin-bottom: 20px;
         }
         .business-name {
-          font-size: 18px;
+          font-size: 24px;
           font-weight: bold;
           margin-bottom: 5px;
         }
@@ -194,12 +194,12 @@ function printReceipt(tx) {
           margin-top: 20px;
           text-align: right;
           font-weight: bold;
-          font-size: 14px;
+          font-size: 18px;
         }
         .footer {
           text-align: center;
           margin-top: 30px;
-          font-size: 10px;
+          font-size: 12px;
           color: #666;
         }
         @media print {
@@ -210,7 +210,7 @@ function printReceipt(tx) {
     </head>
     <body>
       <div class="receipt-header">
-        <div class="business-name">SPA & WELLNESS CENTER</div>
+        <div class="business-name">CEDAR WELLNESS MASSAGE SPA</div>
         <div>Receipt</div>
       </div>
       
