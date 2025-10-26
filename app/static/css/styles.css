@@ -463,9 +463,12 @@ header {
 /* Cashier Counter Styles */
 .cashier-counters-container {
   /* background-color: rgba(0, 0, 0, 0.8); */
-  padding: 20px;
+  padding: 15px 20px;
   border-radius: 8px;
   margin-top: 0;
+  flex: 1; /* Take remaining space */
+  min-height: 0; /* Allow shrinking */
+  overflow-y: hidden; /* Hide scroll bars */
 }
 
 /* .cashier-grid {
@@ -484,14 +487,14 @@ header {
 .cashier-card {
   background-color: #902726;
   color: white;
-  padding: 15px;
+  padding: 10px;
   border-radius: 6px;
   text-align: center;
   /* width: 120px; */
-  height: 120px;
+  height: 100px; /* Reduced height */
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
+  justify-content: center;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
@@ -4002,7 +4005,7 @@ a.logout:hover {
 /* Monitor page start */
 
 .monitor-container {
-  min-height: 100vh;
+  height: calc(100vh - 80px); /* Account for header height */
   background: linear-gradient(rgba(53, 30, 30, 0.5), rgba(35, 24, 24, 0.5)),
     url(/static/img/about_page_background.jpg) no-repeat center/cover;
   background-attachment: fixed;
@@ -4011,6 +4014,7 @@ a.logout:hover {
   display: flex;
   flex-direction: column;
   font-family: "Bebas Neue";
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .monitor-main-details-container {
@@ -4018,8 +4022,9 @@ a.logout:hover {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   text-align: center;
-  flex: 1;
-  margin-bottom: 20px;
+  flex: 2; /* Take up more space */
+  margin-bottom: 10px;
+  min-height: 0; /* Allow shrinking */
 }
 
 .waiting-container,
@@ -4032,17 +4037,18 @@ a.logout:hover {
   align-items: center;
   flex-direction: column;
   margin-top: 0;
-  min-height: 200px;
+  height: 100%; /* Use full available height */
+  overflow-y: hidden; /* Hide scroll bars */
 }
 
 .room-status-container {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  min-height: 200px;
+  height: 100%; /* Use full available height */
   padding: 15px;
   margin-top: 0;
-
+  overflow-y: hidden; /* Hide scroll bars */
 }
 
 .serving-container {
@@ -4139,9 +4145,23 @@ a.logout:hover {
   }
   
   .monitor-container {
-    grid-template-columns: 1fr;
+    height: calc(100vh - 70px); /* Slightly less header height on mobile */
     gap: 15px;
     padding: 15px;
+  }
+  
+  .monitor-main-details-container {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+  
+  .cashier-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+    gap: 15px;
+  }
+  
+  .cashier-card {
+    height: 80px; /* Smaller height on tablet */
+    padding: 8px;
   }
 }
 
@@ -4173,12 +4193,23 @@ a.logout:hover {
   }
   
   .monitor-container {
+    height: calc(100vh - 60px); /* Even less header height on small mobile */
     padding: 10px;
     gap: 10px;
   }
   
   .monitor-heading p {
     font-size: 14px;
+  }
+  
+  .cashier-grid {
+    grid-template-columns: 1fr; /* Single column on small mobile */
+    gap: 10px;
+  }
+  
+  .cashier-card {
+    height: 70px; /* Even smaller height on small mobile */
+    padding: 6px;
   }
 }
 
@@ -4210,6 +4241,7 @@ a.logout:hover {
   }
   
   .monitor-container {
+    height: calc(100vh - 50px); /* Minimal header height on extra small mobile */
     padding: 8px;
     gap: 8px;
   }
@@ -4217,6 +4249,11 @@ a.logout:hover {
   .monitor-heading p {
     font-size: 12px;
     letter-spacing: 0.5px;
+  }
+  
+  .cashier-card {
+    height: 60px; /* Minimal height on extra small mobile */
+    padding: 4px;
   }
 }
 
