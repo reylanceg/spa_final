@@ -28,18 +28,9 @@ def login_therapist():
     # Generate auth token
     token = create_token_for_user(therapist_data)
     
-    # Still set session for backward compatibility
-    session["therapist_id"] = therapist_data.id
-    
-    # Return a page that will store the token and redirect
-    # return render_template("login_success_therapist.html", 
-    #                      token=token, 
-    #                      redirect_url=url_for("therapist.therapist_page"))
-    # return render_template("therapist.html", 
-    #                      token=token,
-    #                      therapist_name=therapist_data.name,
-    #                      room_number=therapist_data.room_number)
-    return redirect(url_for("therapist.therapist_page"))
+    # Redirect to therapist page with token in query parameter
+    # The therapist page will store it in sessionStorage before making API calls
+    return redirect(url_for("therapist.therapist_page", token=token))
 
 
 @auth_bp.get("/logout/therapist")
@@ -70,20 +61,15 @@ def login_cashier():
         return render_template("login_cashier.html", error="Invalid credentials")
 
     if counter_number:
-        c.counter_number = counter_number
+        cashier.counter_number = counter_number
         db.session.commit()
 
     # Generate auth token
     token = create_token_for_user(cashier)
     
-    # Still set session for backward compatibility
-    session["cashier_id"] = cashier.id
-    
-    # Return a page that will store the token and redirect
-    # return render_template("login_success_cashier.html", 
-    #                      token=token, 
-    #                      redirect_url=url_for("cashier.cashier_page"))
-    return redirect(url_for("cashier.cashier_page"))
+    # Redirect to cashier page with token in query parameter
+    # The cashier page will store it in sessionStorage before making API calls
+    return redirect(url_for("cashier.cashier_page", token=token))
 
 
 @auth_bp.get("/logout/cashier")

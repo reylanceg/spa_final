@@ -8,11 +8,29 @@ cashier_bp = Blueprint("cashier", __name__)
 
 @cashier_bp.get("/cashier")
 def cashier_page():
-    # Use hybrid authentication (token-first, session fallback)
+    # Check if token is in query parameter (from login redirect)
+    token_from_query = request.args.get('auth_token') or request.args.get('token')
+    
+    # If token in query, use it to validate and get cashier
+    if token_from_query:
+        from ..utils.auth_helpers import validate_cashier_token
+        cashier = validate_cashier_token(token_from_query)
+        if cashier:
+            print(f"[DEBUG] Auth method: token (from query), Cashier: {cashier.name}, Counter: {cashier.counter_number}")
+            return render_template("cashier.html", 
+                                 cashier_name=cashier.name, 
+                                 counter_number=cashier.counter_number,
+                                 token=token_from_query)
+    
+    # Otherwise, try to get from request headers/sessionStorage
     cashier, auth_method = get_current_cashier()
     
     if not cashier:
+        print("[DEBUG] No cashier found, redirecting to login")
         return redirect(url_for("auth.login_cashier_form"))
+    
+    print(f"[DEBUG] Auth method: {auth_method}, Cashier: {cashier.name}, Counter: {cashier.counter_number}")
+    print(f"[DEBUG] Cashier token: {cashier.auth_token}")
     
     return render_template("cashier.html", 
                          cashier_name=cashier.name, 
@@ -22,15 +40,32 @@ def cashier_page():
 
 @cashier_bp.get("/cashier/payment-management")
 def payment_management_page():
-    # Use hybrid authentication (token-first, session fallback)
+    # Check if token is in query parameter (from client redirect)
+    token_from_query = request.args.get('auth_token') or request.args.get('token')
+    
+    # If token in query, use it to validate and get cashier
+    if token_from_query:
+        from ..utils.auth_helpers import validate_cashier_token
+        cashier = validate_cashier_token(token_from_query)
+        if cashier:
+            print(f"[DEBUG] Auth method: token (from query), Cashier: {cashier.name}, Counter: {cashier.counter_number}")
+            return render_template("payment_management.html", 
+                                 cashier_name=cashier.name, 
+                                 counter_number=cashier.counter_number,
+                                 token=token_from_query)
+    
+    # Otherwise, try to get from request headers
     cashier, auth_method = get_current_cashier()
     
     if not cashier:
         return redirect(url_for("auth.login_cashier_form"))
     
+    print(f"[DEBUG] Auth method: {auth_method}, Cashier: {cashier.name}, Counter: {cashier.counter_number}")
+    
     return render_template("payment_management.html", 
                          cashier_name=cashier.name, 
-                         counter_number=cashier.counter_number)
+                         counter_number=cashier.counter_number,
+                         token=cashier.auth_token)
 
 
 @cashier_bp.get("/cashier/payment-history")

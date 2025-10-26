@@ -1,7 +1,3 @@
-import eventlet
-eventlet.monkey_patch()
-print("[INFO] Eventlet monkey patching applied")
-
 import os
 from dotenv import load_dotenv
 load_dotenv()

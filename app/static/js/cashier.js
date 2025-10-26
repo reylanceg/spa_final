@@ -322,7 +322,7 @@ function printReceipt(tx, amountPaid, changeAmount, cashierName) {
     </head>
     <body>
       <div class="receipt-header">
-        <div class="business-name">SPA & WELLNESS CENTER</div>
+        <div class="business-name">CEDAR WELLNESS MASSAGE SPA</div>
         <div>Payment Receipt</div>
       </div>
       
@@ -589,7 +589,18 @@ socket.on("cashier_claim_result", (res) => {
     sessionStorage.setItem('current_payment_transaction', JSON.stringify(res.transaction));
     // Update button status immediately before redirect
     checkActiveTransactionAndUpdateButton();
-    window.location.href = "/cashier/payment-management";
+    
+    // Redirect to payment management with token
+    const token = sessionStorage.getItem("cashier_auth_token");
+    console.log('Cashier claim result - token:', token ? 'present' : 'missing');
+    console.log('Actual token value:', token);
+    
+    const redirectUrl = token && token !== 'None' && token !== 'undefined'
+      ? `/cashier/payment-management?auth_token=${encodeURIComponent(token)}`
+      : "/cashier/payment-management";
+    
+    console.log('Redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
   } else {
     alert(res.error || "No finished customers");
   }

@@ -302,7 +302,17 @@ function renderPaymentPanel(tx) {
   newTransactionBtn.onclick = () => {
     // Clear stored transaction and redirect back to cashier queue
     sessionStorage.removeItem('current_payment_transaction');
-    window.location.href = "/cashier";
+    
+    // Redirect back to cashier with token
+    const token = sessionStorage.getItem("cashier_auth_token");
+    console.log('New transaction clicked, token:', token ? 'present' : 'missing');
+    
+    const redirectUrl = token && token !== 'None' && token !== 'undefined'
+      ? `/cashier?auth_token=${encodeURIComponent(token)}`
+      : "/cashier";
+    
+    console.log('Redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
   };
 
   // Focus on amount input for better UX
@@ -312,6 +322,26 @@ function renderPaymentPanel(tx) {
 function bindControls() {
   socket.emit("cashier_subscribe");
   myName = document.getElementById("cashier_name").value || "Cashier 1";
+
+  // Add token to back-to-cashier link
+  const backLink = document.getElementById("back_to_cashier_link");
+  if (backLink) {
+    backLink.addEventListener("click", (e) => {
+      e.preventDefault(); // Prevent default navigation
+      
+      // Add token as query parameter
+      const token = sessionStorage.getItem("cashier_auth_token");
+      console.log('Back to cashier clicked, token:', token ? 'present' : 'missing');
+      console.log('Actual token value:', token);
+      
+      const redirectUrl = token && token !== 'None' && token !== 'undefined'
+        ? `/cashier?auth_token=${encodeURIComponent(token)}`
+        : "/cashier";
+      
+      console.log('Redirecting to:', redirectUrl);
+      window.location.href = redirectUrl;
+    });
+  }
 }
 
 // Socket event handlers

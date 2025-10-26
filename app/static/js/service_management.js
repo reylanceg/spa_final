@@ -39,12 +39,17 @@ function stopTimer() {
     clearInterval(intervalId);
     intervalId = null;
   }
+  // Clear timer state from sessionStorage when stopping
+  sessionStorage.removeItem('service_timer_state');
 }
 
 function startTimer(tx) {
   stopTimer();
   const timerEl = document.getElementById("service_timer");
-  if (!timerEl) return;
+  if (!timerEl) {
+    console.error(`[TIMER] Timer element not found for transaction ${tx.id}`);
+    return;
+  }
 
   // If service_start_at is provided, compute elapsed; else start now
   const startMs = tx.service_start_at
@@ -53,19 +58,42 @@ function startTimer(tx) {
   // const totalMs = tx.total_duration_minutes * 60 * 1000; // To change back to minutes
   const totalMs = tx.total_duration_minutes * 1000; // Change the service time from minutes to seconds
 
+  console.log(`[TIMER] Starting timer for transaction ${tx.id}`);
+  console.log(`[TIMER] Service started at: ${tx.service_start_at}`);
+  console.log(`[TIMER] Start timestamp: ${startMs}`);
+  console.log(`[TIMER] Total duration: ${tx.total_duration_minutes} seconds`);
+
   function tick() {
     const now = Date.now();
     const elapsed = now - startMs;
     const remaining = Math.max(0, Math.ceil((totalMs - elapsed) / 1000));
-    timerEl.textContent = formatSeconds(remaining);
+    const formattedTime = formatSeconds(remaining);
+    timerEl.textContent = formattedTime;
+    
+    // Log every 30 seconds to avoid spam
+    if (remaining % 30 === 0) {
+      console.log(`[TIMER] Running - remaining: ${remaining}s, display: ${formattedTime}`);
+    }
+    
+    // Store timer state in sessionStorage for persistence
+    sessionStorage.setItem('service_timer_state', JSON.stringify({
+      transactionId: tx.id,
+      startMs: startMs,
+      totalMs: totalMs,
+      remaining: remaining
+    }));
+    
     if (remaining <= 0) {
       stopTimer();
+      // Clear timer state when finished
+      sessionStorage.removeItem('service_timer_state');
       // Show timer finished layout
       showTimerFinishedLayout(tx);
     }
   }
   tick();
   intervalId = setInterval(tick, 1000);
+  console.log(`[TIMER] Timer started with interval ID: ${intervalId}`);
 }
 
 function renderTimerLayout(tx) {
@@ -142,9 +170,11 @@ function showTimerFinishedLayout(tx) {
 }
 
 function renderCurrent(tx) {
+  console.log(`[RENDER] renderCurrent called with transaction:`, tx);
   const panel = document.getElementById("current_txn");
 
   if (!tx) {
+    console.log(`[RENDER] No transaction - showing no transaction message`);
     panel.innerHTML =
       '<div class="spa-no-transaction">No current transaction. Please go back to the queue to confirm a customer.</div>';
     currentTxn = null;
@@ -156,6 +186,11 @@ function renderCurrent(tx) {
     return;
   }
   currentTxn = tx;
+  
+  // Check if service is in progress and show timer layout
+  const isInService = tx.status === "In Service" && tx.service_start_at;
+  console.log(`[RENDER] Transaction ${tx.id} status: ${tx.status}, service_start_at: ${tx.service_start_at}, isInService: ${isInService}`);
+  
   const items = tx.items
     .map(
       (it) =>
@@ -167,15 +202,13 @@ function renderCurrent(tx) {
             } MINUTES<br>${it.area || "FULL BACK"}</div>
           </div>
           <div class="spa-service-price">₱${it.price.toFixed(0)}</div>
-          <button class="remove_item" data-itemid="${it.id}">REMOVE</button>
+          ${!isInService ? `<button class="remove_item" data-itemid="${it.id}">REMOVE</button>` : ''}
         </li>`
     )
     .join("");
 
-  // Check if service is in progress and show timer layout
-  const isInService = tx.status === "in_service" && tx.service_start_at;
-
   if (isInService) {
+    console.log(`[RENDER] Rendering timer layout for in-service transaction`);
     panel.innerHTML = `
       <div class="card">
         <div class="spa-timer-finished">
@@ -187,7 +220,18 @@ function renderCurrent(tx) {
         </div>
       </div>
     `;
+    
+    // Verify timer element was created
+    setTimeout(() => {
+      const timerEl = document.getElementById("service_timer");
+      if (timerEl) {
+        console.log(`[RENDER] Timer element created successfully`);
+      } else {
+        console.error(`[RENDER] Timer element not found after creating HTML`);
+      }
+    }, 100);
   } else {
+    console.log(`[RENDER] Rendering service selection layout for transaction`);
     panel.innerHTML = `
       <div class="card">
         <div class="spa-service-status">
@@ -274,22 +318,49 @@ function renderCurrent(tx) {
 
   // If already in service, start timer immediately
   if (isInService) {
+    // Check if we have stored timer state for this transaction
+    const storedTimerState = sessionStorage.getItem('service_timer_state');
+    if (storedTimerState) {
+      try {
+        const timerState = JSON.parse(storedTimerState);
+        if (timerState.transactionId === tx.id) {
+          console.log(`[TIMER] Resuming timer for transaction ${tx.id} from stored state`);
+          console.log(`[TIMER] Stored remaining time: ${timerState.remaining} seconds`);
+        }
+      } catch (e) {
+        console.error('[TIMER] Error parsing stored timer state:', e);
+        sessionStorage.removeItem('service_timer_state');
+      }
+    }
     startTimer(tx);
   }
 
   // Bind start button only if it exists (not in service)
   if (startBtn) {
     startBtn.onclick = () => {
-      socket.emit("therapist_start_service", { transaction_id: tx.id });
-
-      // Immediately show timer layout
+      console.log(`[SERVICE] Starting service for transaction ${tx.id}`);
+      
+      // Immediately disable any existing remove buttons
+      const existingRemoveButtons = document.querySelectorAll(".remove_item");
+      existingRemoveButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+      });
+      
+      // Immediately show timer layout with current timestamp
       const updatedTx = {
         ...tx,
-        status: "in_service",
+        status: "In Service",
         service_start_at: new Date().toISOString(),
       };
-      renderTimerLayout(updatedTx);
-      startTimer(updatedTx);
+      
+      console.log(`[SERVICE] Immediately showing timer layout and disabling remove buttons`);
+      renderCurrent(updatedTx);
+      
+      // Send request to server
+      socket.emit("therapist_start_service", { transaction_id: tx.id });
+
+      // When server responds via customer_txn_update, it will update with accurate timestamp
     };
   }
 
@@ -314,17 +385,39 @@ function renderCurrent(tx) {
 
 function bindControls() {
   socket.emit("therapist_subscribe");
+
+  // Add token to back-to-therapist link
+  const backLink = document.getElementById("back_to_therapist_link");
+  if (backLink) {
+    backLink.addEventListener("click", (e) => {
+      // Add token as query parameter
+      const token = sessionStorage.getItem("therapist_auth_token");
+      if (token) {
+        backLink.href = `/therapist?auth_token=${encodeURIComponent(token)}`;
+      }
+    });
+  }
 }
 
 socket.on("customer_txn_update", (tx) => {
-  if (currentTxn && tx.id === currentTxn.id) renderCurrent(tx);
+  console.log(`[SOCKET] Received customer_txn_update for transaction ${tx.id}`, tx);
+  if (currentTxn && tx.id === currentTxn.id) {
+    console.log(`[SOCKET] Updating current transaction UI`);
+    renderCurrent(tx);
+  } else {
+    console.log(`[SOCKET] Ignoring update - current txn: ${currentTxn?.id}, received: ${tx.id}`);
+  }
 });
 
 socket.on("therapist_finish_result", (res) => {
   if (res && res.ok) {
     alert("Service has been completed. Redirecting back to queue...");
-    // Redirect back to therapist queue page
-    window.location.href = "/therapist";
+    // Redirect back to therapist queue page with token
+    const token = sessionStorage.getItem("therapist_auth_token");
+    const redirectUrl = token 
+      ? `/therapist?auth_token=${encodeURIComponent(token)}`
+      : "/therapist";
+    window.location.href = redirectUrl;
   }
 });
 

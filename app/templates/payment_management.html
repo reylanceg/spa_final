@@ -3,7 +3,7 @@
   <!-- Compact Header -->
   <div class="cashier-payment-header">
     <div class="header-left">
-      <a href="/cashier" class="back-to-cashier-link">
+      <a href="/cashier" class="back-to-cashier-link" id="back_to_cashier_link">
         <button class="back-to-cashier-button">← Back to Queue</button>
       </a>
     </div>
@@ -30,7 +30,7 @@
             <p>No active transaction</p>
           </div>
           <div class="quick-actions">
-            <a href="/cashier" class="action-btn primary">Return to Queue</a>
+            <button class="action-btn primary" onclick="returnToQueue()">Return to Queue</button>
           </div>
         </div>
       </div>
@@ -41,5 +41,29 @@
   <input type="hidden" id="cashier_name" value="{{ cashier_name or '' }}" />
   <input type="hidden" id="counter_number" value="{{ counter_number or '' }}" />
 </div>
+<script>
+  // Set token in sessionStorage, handle None/undefined cases
+  const tokenFromServer = '{{token}}';
+  console.log('Token from server:', tokenFromServer);
+  
+  if (tokenFromServer && tokenFromServer !== 'None' && tokenFromServer !== 'undefined') {
+    sessionStorage.setItem('cashier_auth_token', tokenFromServer);
+    console.log('Token stored in sessionStorage');
+  } else {
+    console.warn('No valid token received from server');
+  }
+  
+  function returnToQueue() {
+    const token = sessionStorage.getItem('cashier_auth_token');
+    console.log('returnToQueue - token:', token ? 'present' : 'missing');
+    
+    const redirectUrl = token && token !== 'None' && token !== 'undefined'
+      ? `/cashier?auth_token=${encodeURIComponent(token)}`
+      : '/cashier';
+    
+    console.log('Redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
+  }
+</script>
 <script src="/static/js/payment_management.js"></script>
 {% endblock %}

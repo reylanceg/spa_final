@@ -11,9 +11,7 @@
       <button id="pick_next" class="cashier-confirm-button">
         CONFIRM (FIFO)
       </button>
-      <a href="/cashier/payment-management" class="cashier-payment-link"
-        >Payment Management</a
-      >
+      <button class="cashier-payment-link" id="payment_management_btn">Payment Management</button>
     </div>
     <a
       href="/logout/cashier"
@@ -50,7 +48,52 @@
   </div> -->
 </div>
 <script>
-  sessionStorage.setItem('cashier_auth_token', '{{token}}')
+  // Set token in sessionStorage, handle None/undefined cases
+  const tokenFromServer = '{{token}}';
+  console.log('Token from server:', tokenFromServer);
+  
+  if (tokenFromServer && tokenFromServer !== 'None' && tokenFromServer !== 'undefined') {
+    sessionStorage.setItem('cashier_auth_token', tokenFromServer);
+    console.log('Token stored in sessionStorage');
+  } else {
+    console.warn('No valid token received from server');
+  }
+  
+  function navigateToPaymentManagement() {
+    // Wait a bit to ensure token is set
+    setTimeout(() => {
+      const token = sessionStorage.getItem('cashier_auth_token');
+      console.log('Navigate to payment management, token:', token ? 'present' : 'missing');
+      console.log('Actual token value:', token);
+      console.log('Token from server was:', '{{token}}');
+      
+      if (!token || token === 'None' || token === 'undefined') {
+        console.error('No valid token available, redirecting without token');
+        alert('Authentication token not found. You may be logged out.');
+      }
+      
+      const redirectUrl = token && token !== 'None' && token !== 'undefined'
+        ? `/cashier/payment-management?auth_token=${encodeURIComponent(token)}`
+        : '/cashier/payment-management';
+      
+      console.log('Redirecting to:', redirectUrl);
+      window.location.href = redirectUrl;
+    }, 100);
+  }
+  
+  // Add event listener when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    const paymentMgmtBtn = document.getElementById('payment_management_btn');
+    if (paymentMgmtBtn) {
+      paymentMgmtBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        navigateToPaymentManagement();
+      });
+      console.log('Payment management button event listener added');
+    } else {
+      console.error('Payment management button not found');
+    }
+  });
 </script>
 <script src="/static/js/cashier.js"></script>
 {% endblock %}

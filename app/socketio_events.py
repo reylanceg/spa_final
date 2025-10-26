@@ -182,7 +182,9 @@ def therapist_confirm_next(data):
     db.session.commit()
 
     room = f"txn_{tx.id}"
+    join_room(room)  # Therapist joins the transaction room
     emit("joined_room", {"room": room})
+    print(f"[DEBUG] Therapist {therapist.name} joined room {room} after confirming transaction")
 
     emit("therapist_queue_updated", broadcast=True, to="therapist_queue")
     emit("monitor_updated", broadcast=True, to="monitor")
@@ -295,6 +297,10 @@ def therapist_get_current_transaction():
     ).first()
     
     if tx:
+        # Join the transaction room to receive updates
+        room = f"txn_{tx.id}"
+        join_room(room)
+        print(f"[DEBUG] Therapist {therapist.name} joined room {room}")
         emit("therapist_current_transaction", serialize_transaction(tx))
     else:
         emit("therapist_current_transaction", None)

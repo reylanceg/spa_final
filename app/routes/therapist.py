@@ -8,7 +8,21 @@ therapist_bp = Blueprint("therapist", __name__)
 
 @therapist_bp.get("/therapist")
 def therapist_page():
-    # Use hybrid authentication (token-first, session fallback)
+    # Check if token is in query parameter (from login redirect)
+    token_from_query = request.args.get('auth_token') or request.args.get('token')
+    
+    # If token in query, use it to validate and get therapist
+    if token_from_query:
+        from ..utils.auth_helpers import validate_therapist_token
+        therapist = validate_therapist_token(token_from_query)
+        if therapist:
+            print(f"[DEBUG] Auth method: token (from query), Therapist: {therapist.name}, Room: {therapist.room_number}")
+            return render_template("therapist.html", 
+                                 therapist_name=therapist.name, 
+                                 room_number=therapist.room_number,
+                                 token=token_from_query)
+    
+    # Otherwise, try to get from request headers/sessionStorage
     therapist, auth_method = get_current_therapist()
     
     if not therapist:
@@ -24,17 +38,32 @@ def therapist_page():
 
 @therapist_bp.get("/therapist/service-management")
 def service_management_page():
-    # Use hybrid authentication (token-first, session fallback)
+    # Check if token is in query parameter (from client redirect)
+    token_from_query = request.args.get('auth_token') or request.args.get('token')
+    
+    # If token in query, use it to validate and get therapist
+    if token_from_query:
+        from ..utils.auth_helpers import validate_therapist_token
+        therapist = validate_therapist_token(token_from_query)
+        if therapist:
+            print(f"[DEBUG] Auth method: token (from query), Therapist: {therapist.name}, Room: {therapist.room_number}")
+            return render_template("service_management.html", 
+                                 therapist_name=therapist.name, 
+                                 room_number=therapist.room_number,
+                                 token=token_from_query)
+    
+    # Otherwise, try to get from request headers
     therapist, auth_method = get_current_therapist()
     
     if not therapist:
         return redirect(url_for("auth.login_therapist_form"))
 
-    print(therapist.name)
+    print(f"[DEBUG] Auth method: {auth_method}, Therapist: {therapist.name}, Room: {therapist.room_number}")
     
     return render_template("service_management.html", 
                          therapist_name=therapist.name, 
-                         room_number=therapist.room_number)
+                         room_number=therapist.room_number,
+                         token=therapist.auth_token)
 
 
 @therapist_bp.post("/therapist/toggle-room-status")

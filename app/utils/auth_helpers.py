@@ -94,39 +94,25 @@ def validate_cashier_token(token: str) -> Optional[Cashier]:
 
 
 def get_current_therapist() -> Tuple[Optional[Therapist], Optional[str]]:
-    """Get current therapist from token or session"""
-    # Try token first
+    """Get current therapist from token only (no session fallback to prevent tab mixing)"""
+    # Use token-based auth only to prevent session mixing across browser tabs
     token = get_token_from_request()
     if token:
         therapist = validate_therapist_token(token)
         if therapist:
             return therapist, 'token'
     
-    # Fallback to session
-    therapist_id = session.get('therapist_id')
-    if therapist_id:
-        therapist = Therapist.query.get(therapist_id)
-        if therapist:
-            return therapist, 'session'
-    
     return None, None
 
 
 def get_current_cashier() -> Tuple[Optional[Cashier], Optional[str]]:
-    """Get current cashier from token or session"""
-    # Try token first
+    """Get current cashier from token only (no session fallback to prevent tab mixing)"""
+    # Use token-based auth only to prevent session mixing across browser tabs
     token = get_token_from_request()
     if token:
         cashier = validate_cashier_token(token)
         if cashier:
             return cashier, 'token'
-    
-    # Fallback to session
-    cashier_id = session.get('cashier_id')
-    if cashier_id:
-        cashier = Cashier.query.get(cashier_id)
-        if cashier:
-            return cashier, 'session'
     
     return None, None
 

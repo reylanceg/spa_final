@@ -29,11 +29,9 @@
       <button id="toggle_room_status" class="therapist-confirm-button toggle-status-button" data-status="available">
         On Break
       </button>
-      <a href="/therapist/service-management" class="service-management-link">
-        <button class="therapist-confirm-button service-management-button">
-          Service Management
-        </button>
-      </a>
+      <button class="therapist-confirm-button service-management-button" id="service_management_btn" onclick="navigateToServiceManagement()">
+        Service Management
+      </button>
     </div>
     <a href="/logout/therapist" onclick="sessionStorage.removeItem('therapist_auth_token');" class="logout">Logout</a>
   </div>
@@ -58,6 +56,18 @@
 </div>
 <script>
   sessionStorage.setItem('therapist_auth_token', '{{token}}')
+  
+  function navigateToServiceManagement() {
+    const token = sessionStorage.getItem('therapist_auth_token');
+    console.log('Navigate to service management, token:', token ? 'present' : 'missing');
+    
+    const redirectUrl = token 
+      ? `/therapist/service-management?auth_token=${encodeURIComponent(token)}`
+      : '/therapist/service-management';
+    
+    console.log('Redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
+  }
 </script>
 <script src="/static/js/therapist_queue.js"></script>
 {% endblock %}

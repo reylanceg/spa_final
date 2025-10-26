@@ -289,12 +289,17 @@ function bindControls() {
       checkActiveTransaction();
     });
   });
+
 }
 
 socket.on("therapist_confirm_result", (res) => {
   if (res.ok) {
-    // Redirect to service management page
-    window.location.href = "/therapist/service-management";
+    // Redirect to service management page with token
+    const token = sessionStorage.getItem("therapist_auth_token");
+    const redirectUrl = token 
+      ? `/therapist/service-management?auth_token=${encodeURIComponent(token)}`
+      : "/therapist/service-management";
+    window.location.href = redirectUrl;
   } else {
     alert(res.error || "No pending customers");
   }
@@ -314,6 +319,18 @@ socket.on("therapist_queue_updated", () => {
   checkActiveTransaction();
 });
 
-bindControls();
-refreshQueue();
+// Ensure DOM is ready before binding controls
+document.addEventListener('DOMContentLoaded', function() {
+  bindControls();
+  refreshQueue();
+});
+
+// Fallback in case DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+  // DOM is still loading
+} else {
+  // DOM is already loaded
+  bindControls();
+  refreshQueue();
+}
 

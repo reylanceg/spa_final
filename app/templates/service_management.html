@@ -2,7 +2,7 @@
 <div class="spa-service-page">
   <div class="spa-service-container">
     <div class="service-management-header">
-      <a href="/therapist" class="back-to-therapist-link">
+      <a href="/therapist" class="back-to-therapist-link" id="back_to_therapist_link">
         <button class="back-to-therapist-button">← Back to Queue</button>
       </a>
     </div>
@@ -23,5 +23,8 @@
   <input type="hidden" id="therapist_name" value="{{ therapist_name or '' }}" />
   <input type="hidden" id="room_number" value="{{ room_number or '' }}" />
 </div>
+<script>
+  sessionStorage.setItem('therapist_auth_token', '{{token}}')
+</script>
 <script src="/static/js/service_management.js"></script>
 {% endblock %}
