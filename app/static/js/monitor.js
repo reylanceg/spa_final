@@ -9,11 +9,14 @@ let soundReady = false;
 let activeTimers = new Map(); // Map of transaction_id -> interval_id
 let roomTimers = new Map(); // Map of room_number -> interval_id for room status timers
 
-function formatTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+function formatSeconds(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const hours = Math.floor(s / 3600);
+  const minutes = Math.floor((s % 3600) / 60);
+  const seconds = s % 60;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function calculateRemainingTime(startTime, totalDurationMinutes) {
@@ -36,7 +39,7 @@ function startTimer(transactionId, startTime, totalDurationMinutes) {
     const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
     const timerElement = document.getElementById(`timer-${transactionId}`);
     if (timerElement) {
-      timerElement.textContent = formatTime(remainingSeconds);
+      timerElement.textContent = formatSeconds(remainingSeconds);
       // If timer reaches 0, could add visual indication like service_management
       if (remainingSeconds <= 0) {
         timerElement.style.color = '#ff4444'; // Red color when time is up
@@ -66,14 +69,14 @@ function startRoomTimer(roomNumber, transactionId, startTime, totalDurationMinut
 
   // Set initial timer display
   const initialRemainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
-  timerElement.textContent = formatTime(initialRemainingSeconds);
-  console.log(`Initial timer display for room ${roomNumber}:`, formatTime(initialRemainingSeconds));
+  timerElement.textContent = formatSeconds(initialRemainingSeconds);
+  console.log(`Initial timer display for room ${roomNumber}:`, formatSeconds(initialRemainingSeconds));
 
   const intervalId = setInterval(() => {
     const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
     const timerElement = document.getElementById(`room-timer-${roomNumber}`);
     if (timerElement) {
-      timerElement.textContent = formatTime(remainingSeconds);
+      timerElement.textContent = formatSeconds(remainingSeconds);
       // If timer reaches 0, add visual indication
       if (remainingSeconds <= 0) {
         timerElement.style.color = '#ff4444'; // Red color when time is up
