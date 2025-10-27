@@ -168,36 +168,36 @@ header {
 /* Monitor page service timer styles */
 .service-timer {
   /* font-family: "Courier New", monospace; */
-  font-size: 45px;
+  font-size: 32px;
   font-weight: bold;
   /* color: #28a745; */
   /* background-color: rgba(40, 167, 69, 0.1); */
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 4px;
   /* border: 1px solid #28a745; */
-  margin-top: 5px;
+  margin-top: 3px;
   text-align: center;
 }
 
 /* Occupied status flag styles */
 .occupied-flag {
-  font-size: 45px;
+  font-size: 32px;
   font-weight: bold;
   color: #dc3545;
   padding: 0;
   margin: 0;
-  margin-left: 20px;
+  margin-left: 12px;
   text-align: left;
 }
 
 /* In-service flag styles */
 .in-service-flag {
-  font-size: 45px;
+  font-size: 32px;
   font-weight: bold;
   color: #28a745;
   padding: 0;
   margin: 0;
-  margin-left: 20px;
+  margin-left: 12px;
   text-align: left;
 }
 
@@ -213,15 +213,15 @@ header {
 .room-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-top: 6px;
 }
 
 .room-card {
   display: flex;
   align-items: center;
   background: transparent;
-  padding: 8px 12px;
+  padding: 5px 8px;
   border-radius: 4px;
   transition: background-color 0.3s ease;
   color: white;
@@ -232,10 +232,10 @@ header {
 }
 
 .room-status-indicator {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  margin-right: 12px;
+  margin-right: 10px;
   flex-shrink: 0;
   position: relative;
   transition: all 0.3s ease;
@@ -249,20 +249,20 @@ header {
 }
 
 .room-number {
-  font-size: 35px;
+  font-size: 28px;
   font-weight: bold;
   color: white;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .room-status-text {
-  font-size: 35px;
+  font-size: 28px;
   font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .room-transaction {
@@ -282,7 +282,7 @@ header {
 
 .room-timer {
   /* font-family: "Courier New", monospace; */
-  font-size: 35px;
+  font-size: 24px;
   font-weight: bold;
   margin-left: 4px;
   /* color: #28a745; */
@@ -292,7 +292,7 @@ header {
   /* border: 1px solid #28a745; */
   /* margin-top: 4px; */
   /* text-align: center; */
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 /* Room status specific colors for indicators with neon effects */
@@ -446,29 +446,29 @@ header {
 .monitor-heading {
   background-color: #902726;
   color: white;
-  padding: 10px 15px;
-  margin: -15px -15px 15px -15px;
+  padding: 6px 10px;
+  margin: -10px -10px 8px -10px;
   text-align: center;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .monitor-heading p {
   margin: 0;
   font-weight: bold;
-  font-size: 35px;
-  letter-spacing: 1px;
+  font-size: 26px;
+  letter-spacing: 0.8px;
 }
 
 /* Cashier Counter Styles */
 .cashier-counters-container {
   /* background-color: rgba(0, 0, 0, 0.8); */
-  padding: 15px 20px;
+  padding: 10px 12px;
   border-radius: 8px;
-  margin-top: 0;
-  flex: 1; /* Take remaining space */
-  min-height: 0; /* Allow shrinking */
-  overflow-y: hidden; /* Hide scroll bars */
+  margin-top: auto; /* Push to bottom */
+  flex-shrink: 0; /* Don't shrink */
+  overflow: hidden; /* No scrolling */
 }
 
 /* .cashier-grid {
@@ -481,17 +481,17 @@ header {
 .cashier-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 12px;
 }
 
 .cashier-card {
   background-color: #902726;
   color: white;
-  padding: 10px;
+  padding: 6px;
   border-radius: 6px;
   text-align: center;
   /* width: 120px; */
-  height: 100px; /* Reduced height */
+  height: 70px; /* Further reduced height */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -508,18 +508,18 @@ header {
 }
 
 .cashier-name {
-  font-size: 35px;
+  font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.1;
+  letter-spacing: 0.4px;
+  line-height: 1;
   margin-bottom: 2px;
 }
 
 .cashier-counter {
-  font-size: 35px;
+  font-size: 24px;
   font-weight: bold;
-  line-height: 1.1;
+  line-height: 1;
   word-break: break-all;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -2223,8 +2223,8 @@ body {
 
 .login-container h2,
 .login-container p {
-  margin-bottom: 5px;
-  font-size: 18px;
+  margin-block: 15px;
+  font-size: 22px;
   color: #333;
 }
 
@@ -4005,26 +4005,28 @@ a.logout:hover {
 /* Monitor page start */
 
 .monitor-container {
-  height: calc(100vh - 80px); /* Account for header height */
+  height: 100vh; /* Fixed viewport height - no scrolling */
   background: linear-gradient(rgba(53, 30, 30, 0.5), rgba(35, 24, 24, 0.5)),
     url(/static/img/about_page_background.jpg) no-repeat center/cover;
   background-attachment: fixed;
   color: #fff;
-  padding: 20px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   font-family: "Bebas Neue";
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden; /* No scrolling */
+  box-sizing: border-box;
+  gap: 8px;
 }
 
 .monitor-main-details-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 12px;
   text-align: center;
-  flex: 2; /* Take up more space */
-  margin-bottom: 10px;
+  flex: 1; /* Take remaining space */
   min-height: 0; /* Allow shrinking */
+  overflow: hidden;
 }
 
 .waiting-container,
@@ -4032,28 +4034,60 @@ a.logout:hover {
  {
   /* background-color: rgba(0, 0, 0, 0.6); */
   /* border-radius: 8px; */
-  padding: 15px;
+  padding: 10px;
   display: flex;
   align-items: center;
   flex-direction: column;
   margin-top: 0;
-  height: 100%; /* Use full available height */
-  overflow-y: hidden; /* Hide scroll bars */
+  height: 100%;
+  overflow: hidden; /* No scrolling */
+  min-height: 0;
 }
 
 .room-status-container {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  height: 100%; /* Use full available height */
-  padding: 15px;
+  padding: 10px;
   margin-top: 0;
-  overflow-y: hidden; /* Hide scroll bars */
+  height: 100%;
+  overflow: hidden; /* No scrolling */
+  min-height: 0;
 }
 
 .serving-container {
   border-left: 2px solid #fff;
   border-right: 2px solid #fff;
+}
+
+/* Scrollbar styling for monitor sections */
+.waiting-container::-webkit-scrollbar,
+.serving-container::-webkit-scrollbar,
+.room-status-container::-webkit-scrollbar,
+.cashier-counters-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.waiting-container::-webkit-scrollbar-thumb,
+.serving-container::-webkit-scrollbar-thumb,
+.room-status-container::-webkit-scrollbar-thumb,
+.cashier-counters-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.waiting-container::-webkit-scrollbar-thumb:hover,
+.serving-container::-webkit-scrollbar-thumb:hover,
+.room-status-container::-webkit-scrollbar-thumb:hover,
+.cashier-counters-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.waiting-container::-webkit-scrollbar-track,
+.serving-container::-webkit-scrollbar-track,
+.room-status-container::-webkit-scrollbar-track,
+.cashier-counters-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* Monitor page end */
@@ -4067,25 +4101,25 @@ a.logout:hover {
 }
 
 .waiting {
-  padding: 10px 50px;
-  font-size: 45px;
+  padding: 6px 30px;
+  font-size: 32px;
   color: #fff;
   font-weight: bold;
-  margin-block: 10px;
+  margin-block: 5px;
 }
 
 .monitor-serving-container {
-  font-size: 45px;
+  font-size: 32px;
   /* padding: 10px 20px; */
   font-weight: bold;
-  margin-block: 10px;
+  margin-block: 5px;
 }
 
 .room-in-service {
-  font-size: 45px;
+  font-size: 32px;
   /* padding: 10px 10px; */
   font-weight: bold;
-  margin-block: 10px;
+  margin-block: 5px;
 }
 
 /* Responsive Design for Monitor Page - Attending To Section */
@@ -4145,7 +4179,7 @@ a.logout:hover {
   }
   
   .monitor-container {
-    height: calc(100vh - 70px); /* Slightly less header height on mobile */
+    min-height: 100vh; /* Full viewport height - no header */
     gap: 15px;
     padding: 15px;
   }
@@ -4193,7 +4227,7 @@ a.logout:hover {
   }
   
   .monitor-container {
-    height: calc(100vh - 60px); /* Even less header height on small mobile */
+    min-height: 100vh; /* Full viewport height - no header */
     padding: 10px;
     gap: 10px;
   }
@@ -4241,7 +4275,7 @@ a.logout:hover {
   }
   
   .monitor-container {
-    height: calc(100vh - 50px); /* Minimal header height on extra small mobile */
+    min-height: 100vh; /* Full viewport height - no header */
     padding: 8px;
     gap: 8px;
   }

@@ -49,7 +49,7 @@
       })();
     </script>
     {% if request.path in ['/login/therapist', '/login/cashier', '/therapist',
-    '/cashier', '/', '/about', '/therapist/service-management', '/monitor' ,
+    '/cashier', '/', '/about', '/therapist/service-management',
     '/cashier/payment-management']%}
     <header class="home-header">
       <div class="company-logo-container">
@@ -62,11 +62,12 @@
       <div class="customer-date date" id="date"></div>
     </header>
     {% endif %}
+    <!-- Header hidden for /monitor page -->
     <main>{% block content %}{% endblock %}</main>
     {% if request.path in ['/login/therapist', '/login/cashier', '/therapist',
-    '/cashier', '/', '/about', '/therapist/service-management', '/monitor' ,
+    '/cashier', '/', '/about', '/therapist/service-management',
     '/cashier/payment-management']%}
-
+    <!-- Clock script hidden for /monitor page -->
     <script>
       // Customer page header time/date/day
       function updateClock() {

@@ -55,13 +55,13 @@ function startTimer(tx) {
   const startMs = tx.service_start_at
     ? Date.parse(tx.service_start_at)
     : Date.now();
-  // const totalMs = tx.total_duration_minutes * 60 * 1000; // To change back to minutes
-  const totalMs = tx.total_duration_minutes * 1000; // Change the service time from minutes to seconds
+  // Convert minutes to seconds: if service is 5 minutes, timer will run for 5 seconds
+  const totalMs = tx.total_duration_minutes * 1000;
 
   console.log(`[TIMER] Starting timer for transaction ${tx.id}`);
   console.log(`[TIMER] Service started at: ${tx.service_start_at}`);
   console.log(`[TIMER] Start timestamp: ${startMs}`);
-  console.log(`[TIMER] Total duration: ${tx.total_duration_minutes} seconds`);
+  console.log(`[TIMER] Total duration: ${tx.total_duration_minutes} seconds (converted from minutes value)`);
 
   function tick() {
     const now = Date.now();

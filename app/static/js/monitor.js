@@ -35,6 +35,16 @@ function startTimer(transactionId, startTime, totalDurationMinutes) {
     clearInterval(activeTimers.get(transactionId));
   }
   
+  // Initial timer update before starting interval
+  const timerElement = document.getElementById(`timer-${transactionId}`);
+  if (timerElement) {
+    const initialRemainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+    timerElement.textContent = formatSeconds(initialRemainingSeconds);
+    if (initialRemainingSeconds <= 0) {
+      timerElement.style.color = '#ff4444';
+    }
+  }
+  
   const intervalId = setInterval(() => {
     const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
     const timerElement = document.getElementById(`timer-${transactionId}`);
@@ -55,41 +65,52 @@ function startRoomTimer(roomNumber, transactionId, startTime, totalDurationMinut
   
   // Clear existing room timer if any
   if (roomTimers.has(roomNumber)) {
+    console.log(`Clearing existing timer for room ${roomNumber}`);
     clearInterval(roomTimers.get(roomNumber));
+    roomTimers.delete(roomNumber);
   }
   
-  // Initial timer update
-  const timerElement = document.getElementById(`room-timer-${roomNumber}`);
-  console.log(`Initial timer check for room ${roomNumber}:`, { timerElement, elementExists: !!timerElement });
-  
-  if (!timerElement) {
-    console.error(`Timer element not found immediately: room-timer-${roomNumber}`);
-    return;
-  }
-
-  // Set initial timer display
-  const initialRemainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
-  timerElement.textContent = formatSeconds(initialRemainingSeconds);
-  console.log(`Initial timer display for room ${roomNumber}:`, formatSeconds(initialRemainingSeconds));
-
-  const intervalId = setInterval(() => {
-    const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+  // Wait a bit for DOM to be ready, then start timer
+  setTimeout(() => {
     const timerElement = document.getElementById(`room-timer-${roomNumber}`);
-    if (timerElement) {
-      timerElement.textContent = formatSeconds(remainingSeconds);
-      // If timer reaches 0, add visual indication
-      if (remainingSeconds <= 0) {
-        timerElement.style.color = '#ff4444'; // Red color when time is up
-      }
-    } else {
-      console.error(`Timer element not found during update: room-timer-${roomNumber}`);
-      clearInterval(intervalId);
-      roomTimers.delete(roomNumber);
+    console.log(`Timer element check for room ${roomNumber}:`, { elementExists: !!timerElement });
+    
+    if (!timerElement) {
+      console.error(`Timer element not found: room-timer-${roomNumber}`);
+      return;
     }
-  }, 1000);
-  
-  roomTimers.set(roomNumber, intervalId);
-  console.log("Room timer started for room", roomNumber, "with interval ID", intervalId);
+
+    // Set initial timer display
+    const initialRemainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+    timerElement.textContent = formatSeconds(initialRemainingSeconds);
+    console.log(`Initial timer display for room ${roomNumber}:`, formatSeconds(initialRemainingSeconds));
+    
+    // Set color based on remaining time
+    if (initialRemainingSeconds <= 0) {
+      timerElement.style.color = '#ff4444';
+    } else {
+      timerElement.style.color = ''; // Reset to default
+    }
+
+    const intervalId = setInterval(() => {
+      const remainingSeconds = calculateRemainingTime(startTime, totalDurationMinutes);
+      const timerElement = document.getElementById(`room-timer-${roomNumber}`);
+      if (timerElement) {
+        timerElement.textContent = formatSeconds(remainingSeconds);
+        // If timer reaches 0, add visual indication
+        if (remainingSeconds <= 0) {
+          timerElement.style.color = '#ff4444'; // Red color when time is up
+        }
+      } else {
+        console.error(`Timer element not found during update: room-timer-${roomNumber}`);
+        clearInterval(intervalId);
+        roomTimers.delete(roomNumber);
+      }
+    }, 1000);
+    
+    roomTimers.set(roomNumber, intervalId);
+    console.log("Room timer started for room", roomNumber, "with interval ID", intervalId);
+  }, 50); // Small delay to ensure DOM is ready
 }
 
 function stopTimer(transactionId) {
@@ -266,11 +287,11 @@ function refreshLists() {
       (data.serving || []).forEach((t) => {
         if (t.status === 'Therapist Confirmed') 
           {
-          const occupiedHtml = `<p>${t.code}</p><div style="display:flex"> <p>Room ${t.room_number}</p> <p class="occupied-flag">OCCUPIED</p></div>`;
+          const occupiedHtml = `<div style="display:flex; align-items: center; gap: 20px; justify-content: center;"><span>${t.code}</span><span>Room ${t.room_number}</span><span class="occupied-flag">OCCUPIED</span></div>`;
           serving.appendChild(div(occupiedHtml, "monitor-serving-container"));
         } else if (t.status === 'In Service') 
           {
-          const timerHtml = `<p>${t.code}</p><div style="display: flex"> <p>Room ${t.room_number}</p> <p class="in-service-flag">IN SERVICE</p></div> <p class="service-timer" id="timer-${t.id}">00:00:00</p>`;
+          const timerHtml = `<div style="display: flex; align-items: center; gap: 20px; justify-content: center;"><span>${t.code}</span><span>Room ${t.room_number}</span><span class="in-service-flag">IN SERVICE</span><span class="service-timer" id="timer-${t.id}">00:00:00</span></div>`;
           serving.appendChild(div(timerHtml, "room-in-service"));
           
           // Start timer for this transaction
@@ -293,6 +314,19 @@ function refreshRoomStatus() {
     .then((r) => r.json())
     .then((data) => {
       const roomStatusContainer = document.getElementById("room_status");
+      
+      // Store current timer states before clearing
+      const currentTimerStates = new Map();
+      roomTimers.forEach((intervalId, roomNumber) => {
+        currentTimerStates.set(roomNumber, true);
+      });
+      
+      // Clear existing room timers
+      roomTimers.forEach((intervalId, roomNumber) => {
+        clearInterval(intervalId);
+      });
+      roomTimers.clear();
+      
       roomStatusContainer.innerHTML = "";
       
       (data.rooms || []).forEach((room) => {
@@ -333,27 +367,6 @@ function refreshRoomStatus() {
           </div>
         `;
         
-        
-        // Add transaction code if available
-        // if (room.transaction_code) {
-        //   roomInfoContent += `<div class="room-transaction">${room.transaction_code}</div>`;
-        // }
-        
-        // Add customer name if available
-        // if (room.customer_name) {
-        //   roomInfoContent += `<div class="room-customer">${room.customer_name}</div>`;
-        // }
-        
-        // // Add timer if service is running (has service_start_at and total_duration_minutes)
-        // if (room.service_start_at && room.total_duration_minutes) {
-        //   console.log("Adding timer for room", room.room_number, "with data:", {
-        //     service_start_at: room.service_start_at,
-        //     total_duration_minutes: room.total_duration_minutes,
-        //     transaction_id: room.transaction_id
-        //   });
-        //   roomInfoContent += `<div class="room-timer" id="room-timer-${room.room_number}">00:00:00</div>`;
-        // }
-        
         // Create the complete room card with status indicator
         const roomContent = `
           <div class="room-status-indicator"></div>
@@ -365,12 +378,10 @@ function refreshRoomStatus() {
         roomStatusContainer.appendChild(div(roomContent, `room-card ${statusClass}`));
         
         // Start timer for rooms with ongoing services
-        if (room.status === 'on_going_service' && room.service_start_at && room.total_duration_minutes && room.transaction_id) {
+        if (room.status === 'on_going_service' && room.service_start_at && room.total_duration_minutes) {
           console.log("Starting timer for ongoing service in room", room.room_number);
-          // Use setTimeout to ensure DOM element is created before starting timer
-          setTimeout(() => {
-            startRoomTimer(room.room_number, room.transaction_id, room.service_start_at, room.total_duration_minutes);
-          }, 100);
+          // Start timer immediately without setTimeout
+          startRoomTimer(room.room_number, room.transaction_id, room.service_start_at, room.total_duration_minutes);
         }
       });
     })
